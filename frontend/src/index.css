@@ -3,5 +3,63 @@
 @tailwind utilities;
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-slate-950 text-slate-100 antialiased;
 }
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.4), 0 0 60px rgba(99,102,241,0.1); }
+  50%       { box-shadow: 0 0 50px rgba(99,102,241,0.7), 0 0 100px rgba(99,102,241,0.25); }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes rowReveal {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes barFill {
+  from { width: 0%; }
+}
+
+@keyframes numberPop {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.animate-slide-right { animation: slideInRight 0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
+.animate-slide-left  { animation: slideInLeft  0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
+.animate-fade-up     { animation: fadeInUp     0.45s cubic-bezier(0.22,1,0.36,1) forwards; }
+.animate-fade-in     { animation: fadeIn       0.4s  ease forwards; }
+.animate-pulse-glow  { animation: pulseGlow    2.5s  ease-in-out infinite; }
+.animate-spin-slow   { animation: spinSlow     3s    linear infinite; }
+.animate-row-reveal  { animation: rowReveal    0.5s  cubic-bezier(0.22,1,0.36,1) both; }
+.animate-bar-fill    { animation: barFill      1.4s  cubic-bezier(0.22,1,0.36,1) forwards; }
+.animate-number-pop  { animation: numberPop    0.4s  cubic-bezier(0.22,1,0.36,1) both; }
+
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
