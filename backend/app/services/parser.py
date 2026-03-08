@@ -74,7 +74,11 @@ def _dataframe_to_transactions(df: pd.DataFrame) -> list[Transaction]:
         raw_date = row.get(date_col)
         raw_amt = row.get(amount_col)
         raw_desc = row.get(desc_col) if desc_col else ""
-        d = parse_date(str(raw_date) if raw_date is not None else "")
+        # Excel dates arrive as pd.Timestamp / datetime — format directly instead of str()
+        if hasattr(raw_date, "strftime"):
+            d = raw_date.strftime("%Y-%m-%d")
+        else:
+            d = parse_date(str(raw_date) if raw_date is not None else "")
         amt = parse_amount(raw_amt) if raw_amt is not None else None
         if d is None or amt is None:
             continue

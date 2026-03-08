@@ -57,7 +57,10 @@ def _fetch_live_quotes(symbols: list[str]) -> tuple[str, list[Source]]:
 # In-memory: session_id -> { "profile": UserProfile, "messages": [{"role","content"}] }
 _sessions: dict[str, dict[str, Any]] = {}
 
-PROMPT_DIR = __file__.replace("routers/chat.py", "prompts")
+from pathlib import Path as _Path
+_PROMPT_DIR = _Path(__file__).resolve().parent.parent / "prompts"
+_SYSTEM_PROMPT = (_PROMPT_DIR / "system_prompt.txt").read_text(encoding="utf-8")
+_CHAT_PROMPT = (_PROMPT_DIR / "chat_prompt.txt").read_text(encoding="utf-8")
 
 
 def _get_or_create_session(session_id: str | None, profile: UserProfile) -> str:
@@ -93,12 +96,8 @@ def post_chat(body: ChatRequest) -> dict[str, Any]:
 
     # Query-driven retrieval
     chunks = retrieve(query=message, topic_filter=None, k=3)
-    from pathlib import Path
-    prompt_dir = Path(__file__).resolve().parent.parent / "prompts"
-    system_path = prompt_dir / "system_prompt.txt"
-    chat_path = prompt_dir / "chat_prompt.txt"
-    system = system_path.read_text(encoding="utf-8")
-    tpl = chat_path.read_text(encoding="utf-8")
+    system = _SYSTEM_PROMPT
+    tpl = _CHAT_PROMPT
 
     profile_summary = _profile_summary(profile)
     rag_block = "\n\n".join(
@@ -109,12 +108,14 @@ def post_chat(body: ChatRequest) -> dict[str, Any]:
     for m in sess["messages"][-10:]:
         conv.append(f"{m['role'].upper()}: {m['content']}")
     conversation = "\n".join(conv)
-    user_content = tpl.format(
-        PROFILE_SUMMARY=profile_summary,
-        LIVE_QUOTES=live_quotes_text or "None.",
-        RAG_CHUNKS=rag_block,
-        CONVERSATION=conversation,
-        USER_MESSAGE=message,
+    # Use replace() instead of .format() so user messages containing { or } don't crash
+    user_content = (
+        tpl
+        .replace("{PROFILE_SUMMARY}", profile_summary)
+        .replace("{LIVE_QUOTES}", live_quotes_text or "None.")
+        .replace("{RAG_CHUNKS}", rag_block)
+        .replace("{CONVERSATION}", conversation)
+        .replace("{USER_MESSAGE}", message)
     )
 
     try:

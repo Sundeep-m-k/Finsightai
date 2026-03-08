@@ -7,7 +7,7 @@ def parse_date(s: str) -> str | None:
     if not s or not str(s).strip():
         return None
     s = str(s).strip()
-    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m-%d-%Y", "%d/%m/%Y", "%Y/%m/%d"):
+    for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%m/%d/%Y", "%m-%d-%Y", "%d/%m/%Y", "%Y/%m/%d", "%d-%m-%Y", "%d.%m.%Y"):
         try:
             dt = datetime.strptime(s, fmt)
             return dt.strftime("%Y-%m-%d")
