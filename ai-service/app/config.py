@@ -7,9 +7,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    # Claude
-    anthropic_api_key: str = ""
-    claude_model: str = "claude-3-5-sonnet-20241022"
+    # Gemini (free tier)
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-1.5-flash"
 
     # Finnhub (optional)
     finnhub_api_key: str = ""
