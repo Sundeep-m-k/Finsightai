@@ -11,10 +11,6 @@ venv/
 *.egg-info/
 .pytest_cache/
 
-# Node / frontend (if added later)
-node_modules/
-dist/
-.next/
 
 # IDE
 .idea/

@@ -55,67 +55,68 @@ export function LandingPage() {
     }`}>
 
       {/* ── Nav ──────────────────────────────────────────────────────────────── */}
-      <nav className={`px-6 py-4 flex items-center justify-between sticky top-0 z-20 backdrop-blur-sm border-b ${
+      <nav className={`px-8 py-5 flex items-center justify-between sticky top-0 z-20 backdrop-blur-sm border-b ${
         isLight
           ? 'bg-cream-100/90 border-cream-300'
           : 'bg-[#0a0a0a]/90 border-white/5'
       }`}>
         {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-display font-black text-sm ${
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-display font-black text-sm ${
             isLight ? 'bg-stone-900 text-gold-400' : 'bg-white text-stone-900'
           }`}>
             FS
           </div>
-          <span className={`font-semibold tracking-tight text-sm ${isLight ? 'text-stone-900' : 'text-white'}`}>
+          <span className={`font-semibold tracking-tight text-base ${isLight ? 'text-stone-900' : 'text-white'}`}>
             FinSight AI
           </span>
         </div>
 
         {/* Centre badge */}
-        <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium ${
+        <div className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold ${
           isLight
             ? 'border-gold-600/40 bg-gold-400/10 text-gold-600'
             : 'border-gold-500/30 bg-gold-500/10 text-gold-400'
         }`}>
-          <Trophy size={11} />
-          HackBU 2026
+          <Trophy size={14} />
+          HackBU 2026 · Built in 24 hours
         </div>
 
         {/* Right: toggle + CTA */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <ThemeToggle />
           <Link
             to="/onboard"
-            className={`hidden sm:inline-flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-xl transition-all ${
+            className={`hidden sm:inline-flex items-center gap-2 text-base font-semibold px-5 py-2.5 rounded-xl transition-all ${
               isLight
-                ? 'bg-stone-900 text-white hover:bg-stone-700'
+                ? 'bg-stone-900 text-stone-50 hover:bg-stone-700'
                 : 'bg-white text-stone-900 hover:bg-cream-100'
             }`}
           >
-            Get started <ChevronRight size={14} />
+            Get started <ChevronRight size={16} />
           </Link>
         </div>
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <section className="flex-1 flex flex-col items-center justify-center px-6 py-24 text-center">
+      <section className="flex-1 flex flex-col items-center justify-center px-6 py-28 text-center">
 
-        {/* Chip */}
-        <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-medium mb-8 animate-fade-up ${
-          isLight
-            ? 'border-stone-300 bg-stone-100 text-stone-600'
-            : 'border-white/10 bg-white/5 text-slate-400'
-        }`}>
+        {/* Tagline — large, prominent */}
+        <p
+          className={`font-display font-semibold italic mb-6 animate-fade-up ${
+            isLight ? 'text-stone-500' : 'text-slate-400'
+          }`}
+          style={{ fontSize: 'clamp(1.5rem, 3vw, 2.5rem)' }}
+        >
           A mentor, not a calculator.
-        </div>
+        </p>
 
         {/* Main headline */}
         <h1
-          className={`font-display font-black leading-[1.0] tracking-tight max-w-3xl animate-fade-up ${
+          className={`font-display font-black leading-[1.0] tracking-tight max-w-4xl animate-fade-up ${
             isLight ? 'text-stone-900' : 'text-white'
           }`}
-          style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', animationDelay: '0.06s' }}
+          style={{ fontSize: 'clamp(2.8rem, 7vw, 6rem)', animationDelay: '0.06s' }}
         >
           You probably spend<br />
           <span className={isLight ? 'text-gold-600' : 'text-gold-400'}>
@@ -125,7 +126,7 @@ export function LandingPage() {
 
         {/* Sub-copy */}
         <p
-          className={`mt-8 text-lg leading-relaxed max-w-lg animate-fade-up ${
+          className={`mt-10 text-xl leading-relaxed max-w-xl animate-fade-up ${
             isLight ? 'text-stone-600' : 'text-slate-400'
           }`}
           style={{ animationDelay: '0.12s' }}
@@ -134,7 +135,7 @@ export function LandingPage() {
           Because nobody ever showed you the gap.
         </p>
         <p
-          className={`mt-3 text-base leading-relaxed max-w-md animate-fade-up ${
+          className={`mt-4 text-lg leading-relaxed max-w-lg animate-fade-up ${
             isLight ? 'text-stone-500' : 'text-slate-500'
           }`}
           style={{ animationDelay: '0.16s' }}
@@ -145,23 +146,23 @@ export function LandingPage() {
 
         {/* CTAs */}
         <div
-          className="mt-10 flex flex-col sm:flex-row gap-3 animate-fade-up"
+          className="mt-12 flex flex-col sm:flex-row gap-4 animate-fade-up"
           style={{ animationDelay: '0.22s' }}
         >
           <Link
             to="/onboard"
-            className={`group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm transition-all ${
+            className={`group inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base transition-all ${
               isLight
-                ? 'bg-stone-900 text-white hover:bg-stone-700 shadow-lg shadow-stone-900/20'
+                ? 'bg-stone-900 text-stone-50 hover:bg-stone-700 shadow-lg shadow-stone-900/20'
                 : 'bg-white text-stone-900 hover:bg-cream-100 shadow-lg shadow-white/10'
             }`}
           >
             Show me my numbers
-            <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+            <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
           </Link>
           <Link
             to="/upload"
-            className={`inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border text-sm font-medium transition-colors ${
+            className={`inline-flex items-center gap-2 px-8 py-4 rounded-xl border text-base font-medium transition-colors ${
               isLight
                 ? 'border-stone-300 text-stone-600 hover:border-stone-500 hover:text-stone-900'
                 : 'border-white/15 text-slate-400 hover:border-white/30 hover:text-white'
@@ -172,41 +173,41 @@ export function LandingPage() {
         </div>
 
         {/* Mobile HackBU badge */}
-        <div className={`mt-8 sm:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium ${
+        <div className={`mt-10 sm:hidden inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold ${
           isLight
             ? 'border-gold-600/40 bg-gold-400/10 text-gold-600'
             : 'border-gold-500/30 bg-gold-500/10 text-gold-400'
         }`}>
-          <Trophy size={11} />
-          Built for HackBU 2026
+          <Trophy size={13} />
+          HackBU 2026 · Built in 24 hours
         </div>
       </section>
 
       {/* ── Divider ───────────────────────────────────────────────────────────── */}
-      <div className={`mx-6 h-px ${isLight ? 'bg-cream-300' : 'bg-white/5'}`} />
+      <div className={`mx-8 h-px ${isLight ? 'bg-cream-300' : 'bg-white/5'}`} />
 
       {/* ── Features ─────────────────────────────────────────────────────────── */}
-      <section className="px-6 py-20 max-w-3xl mx-auto w-full">
-        <p className={`text-xs font-semibold uppercase tracking-widest mb-12 ${
+      <section className="px-8 py-24 max-w-3xl mx-auto w-full">
+        <p className={`text-sm font-semibold uppercase tracking-widest mb-14 ${
           isLight ? 'text-stone-400' : 'text-slate-600'
         }`}>
           How it works
         </p>
-        <div className="space-y-10">
+        <div className="space-y-14">
           {features.map((f) => (
-            <div key={f.num} className="flex gap-6">
-              <span className={`font-display font-black text-3xl leading-none shrink-0 w-12 ${
+            <div key={f.num} className="flex gap-8">
+              <span className={`font-display font-black text-5xl leading-none shrink-0 w-16 ${
                 isLight ? 'text-cream-400' : 'text-white/10'
               }`}>
                 {f.num}
               </span>
               <div>
-                <h3 className={`font-display font-bold text-xl leading-snug mb-2 ${
+                <h3 className={`font-display font-bold text-2xl leading-snug mb-3 ${
                   isLight ? 'text-stone-900' : 'text-white'
                 }`}>
                   {f.title}
                 </h3>
-                <p className={`text-sm leading-relaxed ${
+                <p className={`text-base leading-relaxed ${
                   isLight ? 'text-stone-500' : 'text-slate-500'
                 }`}>
                   {f.desc}
@@ -218,52 +219,52 @@ export function LandingPage() {
       </section>
 
       {/* ── Divider ───────────────────────────────────────────────────────────── */}
-      <div className={`mx-6 h-px ${isLight ? 'bg-cream-300' : 'bg-white/5'}`} />
+      <div className={`mx-8 h-px ${isLight ? 'bg-cream-300' : 'bg-white/5'}`} />
 
       {/* ── Team section ─────────────────────────────────────────────────────── */}
-      <section className="px-6 py-20 max-w-4xl mx-auto w-full">
-        <div className="mb-12">
-          <p className={`text-xs font-semibold uppercase tracking-widest mb-2 ${
+      <section className="px-8 py-24 max-w-4xl mx-auto w-full">
+        <div className="mb-14">
+          <p className={`text-sm font-semibold uppercase tracking-widest mb-2 ${
             isLight ? 'text-stone-400' : 'text-slate-600'
           }`}>
-            Team · HackBU 2026
+            Team · HackBU 2026 · Built in 24 hours
           </p>
-          <p className={`text-sm ${isLight ? 'text-stone-500' : 'text-slate-500'}`}>
+          <p className={`text-base ${isLight ? 'text-stone-500' : 'text-slate-500'}`}>
             Binghamton University · Thomas J. Watson College of Engineering and Applied Science
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-5 mb-10">
+        <div className="grid sm:grid-cols-3 gap-6 mb-12">
           {team.map((member) => (
             <div
               key={member.name}
-              className={`rounded-2xl border p-5 transition-all ${
+              className={`rounded-2xl border p-6 transition-all ${
                 isLight
                   ? 'bg-white border-cream-300 hover:border-cream-400'
                   : 'bg-white/[0.03] border-white/8 hover:border-white/15'
               }`}
             >
               {/* Name */}
-              <p className={`font-display font-bold text-base leading-snug mb-3 ${
+              <p className={`font-display font-bold text-lg leading-snug mb-4 ${
                 isLight ? 'text-stone-900' : 'text-white'
               }`}>
                 {member.name}
               </p>
 
               {/* Degree */}
-              <p className={`text-xs mb-0.5 ${isLight ? 'text-stone-500' : 'text-slate-500'}`}>
+              <p className={`text-sm mb-1 ${isLight ? 'text-stone-500' : 'text-slate-500'}`}>
                 {member.degree}
               </p>
-              <p className={`text-xs mb-4 ${isLight ? 'text-stone-400' : 'text-slate-600'}`}>
+              <p className={`text-sm mb-5 ${isLight ? 'text-stone-400' : 'text-slate-600'}`}>
                 Binghamton University
               </p>
 
               {/* Advisor */}
               <div className={`pt-4 border-t ${isLight ? 'border-cream-300' : 'border-white/8'}`}>
-                <p className={`text-xs font-medium mb-0.5 ${isLight ? 'text-stone-400' : 'text-slate-600'}`}>
+                <p className={`text-sm font-medium mb-1 ${isLight ? 'text-stone-400' : 'text-slate-600'}`}>
                   Advised by
                 </p>
-                <p className={`text-sm font-semibold ${isLight ? 'text-gold-600' : 'text-gold-400'}`}>
+                <p className={`text-base font-semibold ${isLight ? 'text-gold-600' : 'text-gold-400'}`}>
                   {member.advisor}
                 </p>
               </div>
@@ -272,7 +273,7 @@ export function LandingPage() {
         </div>
 
         {/* Thank-you note */}
-        <p className={`text-sm text-center leading-relaxed max-w-2xl mx-auto italic ${
+        <p className={`text-base text-center leading-relaxed max-w-2xl mx-auto italic ${
           isLight ? 'text-stone-500' : 'text-slate-500'
         }`}>
           "We thank our advisors for their mentorship and for providing API access
@@ -281,8 +282,8 @@ export function LandingPage() {
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
-      <div className={`mx-6 h-px ${isLight ? 'bg-cream-300' : 'bg-white/5'}`} />
-      <footer className={`px-6 py-8 text-center text-xs ${isLight ? 'text-stone-400' : 'text-slate-700'}`}>
+      <div className={`mx-8 h-px ${isLight ? 'bg-cream-300' : 'bg-white/5'}`} />
+      <footer className={`px-8 py-10 text-center text-sm ${isLight ? 'text-stone-400' : 'text-slate-700'}`}>
         Not financial advice &nbsp;·&nbsp; Sources: CFPB, OpenStax, investor.gov &nbsp;·&nbsp; © HackBU 2026
       </footer>
     </div>

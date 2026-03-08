@@ -35,7 +35,7 @@ export function Layout() {
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                 pathname === '/dashboard'
                   ? isLight
-                    ? 'bg-stone-900 text-white'
+                    ? 'bg-stone-900 text-stone-50'
                     : 'bg-slate-800 text-white'
                   : isLight
                     ? 'text-stone-500 hover:text-stone-900 hover:bg-cream-200'
@@ -50,7 +50,7 @@ export function Layout() {
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                 pathname === '/dashboard/chat'
                   ? isLight
-                    ? 'bg-stone-900 text-white'
+                    ? 'bg-stone-900 text-stone-50'
                     : 'bg-slate-800 text-white'
                   : isLight
                     ? 'text-stone-500 hover:text-stone-900 hover:bg-cream-200'

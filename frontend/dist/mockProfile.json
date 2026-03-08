@@ -1,0 +1,40 @@
+{
+  "questionnaire": {
+    "income_monthly": 2400,
+    "expenses_monthly": 2100,
+    "loan_balance": 28000,
+    "loan_rate": 6.5,
+    "credit_card_balance": 1200,
+    "cc_limit": 3000,
+    "primary_goal": "investing",
+    "risk_tolerance": "medium",
+    "months_until_graduation": 18,
+    "income_type": "fixed",
+    "time_horizon": "3_5yr"
+  },
+  "behavioral": {
+    "flags": ["spending_gap", "no_emergency_fund"],
+    "avg_monthly_spending": 2150,
+    "savings_rate_pct": 2.4,
+    "said_vs_actual_gap_pct": 5.9,
+    "expense_breakdown": [
+      { "category": "Food", "amount": 520, "percentage": 24 },
+      { "category": "Rent", "amount": 800, "percentage": 37 },
+      { "category": "Transport", "amount": 180, "percentage": 8 },
+      { "category": "Subscriptions", "amount": 95, "percentage": 4 },
+      { "category": "Other", "amount": 555, "percentage": 26 }
+    ]
+  },
+  "saving_readiness_score": 5,
+  "investment_readiness_score": 4,
+  "analysis_period_months": 6,
+  "gap_analysis": [
+    { "category": "dining",        "stated": 147, "actual": 487, "delta_pct": 231, "status": "red"   },
+    { "category": "subscriptions", "stated":  63, "actual": 134, "delta_pct": 113, "status": "red"   },
+    { "category": "entertainment", "stated":  84, "actual": 134, "delta_pct":  60, "status": "amber" },
+    { "category": "transport",     "stated": 168, "actual": 108, "delta_pct": -36, "status": "green" },
+    { "category": "groceries",     "stated": 378, "actual": 310, "delta_pct": -18, "status": "green" }
+  ],
+  "readiness_narrative": "Building momentum — focus on emergency fund and debt consistency.",
+  "investment_narrative": "Almost there — reduce credit card balance first."
+}

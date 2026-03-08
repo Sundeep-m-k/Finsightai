@@ -1,5 +1,6 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
+import { ThemeToggle } from './components/common/ThemeToggle';
 import { Layout } from './components/layout/Layout';
 import { LandingPage } from './pages/LandingPage';
 import { OnboardingPage } from './pages/OnboardingPage';
@@ -8,9 +9,24 @@ import { GapRevealPage } from './pages/GapRevealPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ChatPage } from './pages/ChatPage';
 
+// Pages that have their own nav with a ThemeToggle — don't float on top of them
+const NAV_HAS_TOGGLE = ['/', '/dashboard', '/dashboard/chat'];
+
+function FloatingToggle() {
+  const { pathname } = useLocation();
+  const hasNavToggle = NAV_HAS_TOGGLE.some(p => pathname === p || pathname.startsWith('/dashboard'));
+  if (hasNavToggle) return null;
+  return (
+    <div className="fixed top-4 right-4 z-50 drop-shadow-md">
+      <ThemeToggle />
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <ThemeProvider>
+      <FloatingToggle />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/onboard" element={<OnboardingPage />} />
