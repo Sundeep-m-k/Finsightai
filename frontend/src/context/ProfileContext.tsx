@@ -23,7 +23,7 @@ const defaultProfile: UserProfile = {
   analysis_period_months: 6,
 };
 
-const STORAGE_KEY = 'finsight_session_id';
+const STORAGE_KEY = 'finscope_session_id';
 
 const ProfileContext = createContext<{
   profile: UserProfile;

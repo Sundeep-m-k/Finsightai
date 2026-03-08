@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, CheckCircle2, TrendingUp, ChevronRight } from 'lucide-react';
 import { useProfile } from '../context/ProfileContext';
 import { useTheme } from '../context/ThemeContext';
+import { useNavSlot } from '../context/NavSlotContext';
 import type { GapItem, UserProfile } from 'shared/schemas/profile';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -131,57 +132,44 @@ function GapRow({ row, visible, index, isLight }: { row: GapRowData; visible: bo
       className={visible ? 'animate-fade-up' : 'invisible'}
       style={{ animationDelay: `${index * 0.35}s`, animationFillMode: 'both' }}
     >
-      <div className={`rounded-2xl border p-5 ${cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')}`}>
+      <div className={`rounded-xl border px-4 py-3 ${cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')}`}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <span className="text-2xl leading-none">{row.emoji}</span>
-            <span className={`font-semibold text-base ${cv(isLight, 'text-stone-900', 'text-white')}`}>{row.category}</span>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-lg leading-none">{row.emoji}</span>
+            <span className={`font-semibold text-sm ${cv(isLight, 'text-stone-900', 'text-white')}`}>{row.category}</span>
           </div>
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold ${cfg.badge}`}>
-            <Icon size={11} />
-            {isOver ? `+${Math.abs(delta)}%` : `${Math.abs(delta)}% under`}
+          <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-semibold ${cfg.badge}`}>
+            <Icon size={10} />
+            {isOver ? `+${Math.abs(delta)}%` : `-${Math.abs(delta)}%`}
           </div>
         </div>
 
         {/* Bars */}
-        <div className="space-y-3 mb-3">
+        <div className="space-y-1.5">
           <div>
-            <div className={`flex justify-between text-xs mb-1.5 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>
+            <div className={`flex justify-between text-xs mb-1 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>
               <span>You said</span>
               <span className={`font-mono font-medium ${cv(isLight, 'text-stone-600', 'text-slate-400')}`}>${statedCount}</span>
             </div>
-            <div className={`h-2 rounded-full overflow-hidden ${cv(isLight, 'bg-stone-100', 'bg-white/8')}`}>
-              <div
-                className={`h-full rounded-full animate-bar-fill ${cv(isLight, 'bg-stone-300', 'bg-white/20')}`}
-                style={{ width: `${statedPct}%`, animationDelay: `${index * 0.4 + 0.2}s` }}
-              />
+            <div className={`h-1.5 rounded-full overflow-hidden ${cv(isLight, 'bg-stone-100', 'bg-white/8')}`}>
+              <div className={`h-full rounded-full animate-bar-fill ${cv(isLight, 'bg-stone-300', 'bg-white/20')}`}
+                style={{ width: `${statedPct}%`, animationDelay: `${index * 0.4 + 0.2}s` }} />
             </div>
           </div>
           <div>
-            <div className={`flex justify-between text-xs mb-1.5 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>
+            <div className={`flex justify-between text-xs mb-1 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>
               <span>Reality</span>
               <span className={`font-mono font-bold ${row.status === 'green' ? 'text-emerald-500' : row.status === 'red' ? 'text-red-500' : 'text-amber-500'}`}>
                 ${actualCount}
               </span>
             </div>
-            <div className={`h-2 rounded-full overflow-hidden ${cv(isLight, 'bg-stone-100', 'bg-white/8')}`}>
-              <div
-                className={`h-full ${cfg.bar} rounded-full animate-bar-fill`}
-                style={{ width: `${actualPct}%`, animationDelay: `${index * 0.4 + 0.4}s` }}
-              />
+            <div className={`h-1.5 rounded-full overflow-hidden ${cv(isLight, 'bg-stone-100', 'bg-white/8')}`}>
+              <div className={`h-full ${cfg.bar} rounded-full animate-bar-fill`}
+                style={{ width: `${actualPct}%`, animationDelay: `${index * 0.4 + 0.4}s` }} />
             </div>
           </div>
         </div>
-
-        {/* Delta note */}
-        {row.status !== 'green' && (
-          <p className={`text-xs mt-2 ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>
-            {isOver
-              ? `You spent $${row.actual - row.stated} more than you reported`
-              : `You saved $${row.stated - row.actual} more than expected`}
-          </p>
-        )}
       </div>
     </div>
   );
@@ -192,6 +180,7 @@ function GapRow({ row, visible, index, isLight }: { row: GapRowData; visible: bo
 export function GapRevealPage() {
   const { profile } = useProfile();
   const { theme }   = useTheme();
+  const { setSlot, clearSlot } = useNavSlot();
   const isLight     = theme === 'light';
 
   const derived   = deriveFromProfile(profile);
@@ -204,6 +193,21 @@ export function GapRevealPage() {
   const totalRate  = useCountUp(SUMMARY.actualRate * 10, 800, 400, true);
   const statedRate = useCountUp(SUMMARY.statedRate * 10, 800, 600, true);
 
+  // Inject "Gap analysis" badge into global nav
+  useEffect(() => {
+    setSlot(
+      <div className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${
+        isLight
+          ? 'border-red-200 bg-red-50 text-red-500'
+          : 'border-red-500/30 bg-red-500/10 text-red-400'
+      }`}>
+        <AlertTriangle size={11} />
+        Gap analysis
+      </div>
+    );
+    return () => clearSlot();
+  }, [isLight, setSlot, clearSlot]);
+
   useEffect(() => {
     GAP_DATA.forEach((_, i) => {
       setTimeout(() => setVisibleCount(i + 1), i * 350 + 500);
@@ -211,90 +215,61 @@ export function GapRevealPage() {
   }, [GAP_DATA.length]);
 
   return (
-    <div className={`min-h-screen flex flex-col ${cv(isLight, 'bg-cream-100', 'bg-[#0a0a0a]')}`}>
-
-      {/* ── Nav ──────────────────────────────────────────────────────────────── */}
-      <nav className={`px-6 py-4 flex items-center justify-between border-b sticky top-0 z-10 backdrop-blur-sm ${
-        cv(isLight, 'border-stone-200 bg-cream-100/90', 'border-white/5 bg-[#0a0a0a]/90')
-      }`}>
-        <Link to="/" className="flex items-center gap-2.5">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-display font-black text-xs ${
-            cv(isLight, 'bg-stone-900 text-gold-400', 'bg-white text-stone-900')
-          }`}>FS</div>
-          <span className={`font-semibold tracking-tight text-sm ${cv(isLight, 'text-stone-900', 'text-white')}`}>
-            FinSight AI
-          </span>
-        </Link>
-        <div className={`text-xs font-semibold px-3 py-1.5 rounded-full border flex items-center gap-1.5 ${
-          cv(isLight, 'border-red-200 bg-red-50 text-red-500', 'border-red-500/30 bg-red-500/10 text-red-400')
-        }`}>
-          <AlertTriangle size={11} />
-          Gap analysis
-        </div>
-      </nav>
+    <div className={`flex-1 flex flex-col overflow-hidden ${cv(isLight, 'bg-cream-100', 'bg-[#0a0a0a]')}`}>
 
       {/* ── Content ──────────────────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto w-full px-6 xl:px-8 py-10">
+      <div className="flex-1 overflow-y-auto">
+      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 xl:px-8 py-4">
 
-        {/* ── Heading ──────────────────────────────────────────────────────── */}
-        <div className="mb-8 animate-fade-up">
-          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold mb-5 ${
-            cv(isLight, 'bg-red-50 border-red-200 text-red-500', 'bg-red-500/10 border-red-500/20 text-red-400')
-          }`}>
-            <AlertTriangle size={11} />
-            Behavioural gap detected
+        {/* ── Compact heading row + stat cards ─────────────────────────────── */}
+        <div className="mb-4 animate-fade-up">
+          <div className="flex items-center gap-3 mb-3">
+            <h1 className={`font-display font-black text-2xl leading-tight ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+              What you <span className="text-red-500">actually</span> spent
+            </h1>
+            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold ${
+              cv(isLight, 'bg-red-50 border-red-200 text-red-500', 'bg-red-500/10 border-red-500/20 text-red-400')
+            }`}>
+              <AlertTriangle size={10} />
+              Gap detected
+            </div>
           </div>
 
-          <h1 className={`font-display font-black leading-tight ${cv(isLight, 'text-stone-900', 'text-white')}`}
-            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
-            Here's what your spending{' '}
-            <span className="text-red-500">actually</span>{' '}
-            looks like
-          </h1>
-          <p className={`mt-3 max-w-xl text-base leading-relaxed ${cv(isLight, 'text-stone-500', 'text-slate-500')}`}>
-            We compared what you told us against your real transaction history.
-            The results might surprise you.
-          </p>
-
-          {/* ── Rate comparison cards ─────────────────────────────────────── */}
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className={`sm:col-span-1 rounded-2xl border px-5 py-4 ${cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')}`}>
-              <p className={`text-xs font-medium mb-1 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>You reported saving</p>
-              <p className={`text-3xl font-display font-black ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+          {/* ── Compact stat row ──────────────────────────────────────────── */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className={`rounded-xl border px-4 py-3 ${cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')}`}>
+              <p className={`text-xs font-medium mb-0.5 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>You reported saving</p>
+              <p className={`text-2xl font-display font-black ${cv(isLight, 'text-stone-900', 'text-white')}`}>
                 {(statedRate / 10).toFixed(1)}%
               </p>
-              <p className={`text-xs mt-0.5 ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>per month</p>
+              <p className={`text-xs ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>per month</p>
             </div>
-            <div className={`sm:col-span-1 rounded-2xl border px-5 py-4 ${cv(isLight, 'bg-red-50 border-red-200', 'bg-red-500/8 border-red-500/20')}`}>
-              <p className={`text-xs font-medium mb-1 ${cv(isLight, 'text-red-400', 'text-red-500/70')}`}>Actually saving</p>
-              <p className="text-3xl font-display font-black text-red-500">
+            <div className={`rounded-xl border px-4 py-3 ${cv(isLight, 'bg-red-50 border-red-200', 'bg-red-500/8 border-red-500/20')}`}>
+              <p className={`text-xs font-medium mb-0.5 ${cv(isLight, 'text-red-400', 'text-red-500/70')}`}>Actually saving</p>
+              <p className="text-2xl font-display font-black text-red-500">
                 {(totalRate / 10).toFixed(1)}%
               </p>
-              <p className={`text-xs mt-0.5 ${cv(isLight, 'text-red-400', 'text-red-600')}`}>per month</p>
+              <p className={`text-xs ${cv(isLight, 'text-red-400', 'text-red-600')}`}>per month</p>
             </div>
-            <div className={`sm:col-span-1 rounded-2xl border px-5 py-4 ${cv(isLight, 'bg-amber-50 border-amber-200', 'bg-amber-500/8 border-amber-500/20')}`}>
-              <p className={`text-xs font-medium mb-1 ${cv(isLight, 'text-amber-500', 'text-amber-500/70')}`}>Behaviour gap</p>
-              <p className="text-3xl font-display font-black text-amber-500">
-                {SUMMARY.gapPct}%
-              </p>
-              <p className={`text-xs mt-0.5 ${cv(isLight, 'text-amber-400', 'text-amber-600')}`}>gap in savings</p>
+            <div className={`rounded-xl border px-4 py-3 ${cv(isLight, 'bg-amber-50 border-amber-200', 'bg-amber-500/8 border-amber-500/20')}`}>
+              <p className={`text-xs font-medium mb-0.5 ${cv(isLight, 'text-amber-500', 'text-amber-500/70')}`}>Behaviour gap</p>
+              <p className="text-2xl font-display font-black text-amber-500">{SUMMARY.gapPct}%</p>
+              <p className={`text-xs ${cv(isLight, 'text-amber-400', 'text-amber-600')}`}>in savings</p>
             </div>
-            <div className={`sm:col-span-1 rounded-2xl border px-5 py-4 ${cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')}`}>
-              <p className={`text-xs font-medium mb-1 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>Cost per month</p>
-              <p className={`text-3xl font-display font-black ${cv(isLight, 'text-stone-900', 'text-white')}`}>
-                ${SUMMARY.costPerMonth}
-              </p>
-              <p className={`text-xs mt-0.5 ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>in missed savings</p>
+            <div className={`rounded-xl border px-4 py-3 ${cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')}`}>
+              <p className={`text-xs font-medium mb-0.5 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>Cost per month</p>
+              <p className={`text-2xl font-display font-black ${cv(isLight, 'text-stone-900', 'text-white')}`}>${SUMMARY.costPerMonth}</p>
+              <p className={`text-xs ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>missed savings</p>
             </div>
           </div>
         </div>
 
         {/* ── Main layout: gap rows + summary ──────────────────────────────── */}
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
 
           {/* Gap rows */}
-          <div className="space-y-3">
-            <h2 className={`font-display font-black text-xl mb-4 ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+          <div className="space-y-2">
+            <h2 className={`font-display font-black text-sm uppercase tracking-wider mb-2 ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>
               Category breakdown
             </h2>
             {GAP_DATA.map((row, i) => (
@@ -303,40 +278,35 @@ export function GapRevealPage() {
           </div>
 
           {/* Summary + CTA */}
-          <div className="animate-fade-up" style={{ animationDelay: '0.3s' }}>
-            <h2 className={`font-display font-black text-xl mb-4 ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+          <div className="animate-fade-up flex flex-col gap-3" style={{ animationDelay: '0.3s' }}>
+            <h2 className={`font-display font-black text-sm uppercase tracking-wider ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>
               What this means
             </h2>
 
             {/* Callout */}
-            <div className={`rounded-2xl border p-5 mb-4 ${
+            <div className={`rounded-xl border p-4 ${
               cv(isLight, 'bg-red-50 border-red-200', 'bg-red-500/8 border-red-500/20')
             }`}>
-              <div className="flex items-start gap-3">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                  cv(isLight, 'bg-red-100', 'bg-red-500/20')
-                }`}>
-                  <AlertTriangle size={17} className="text-red-500" />
-                </div>
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle size={15} className="text-red-500 shrink-0 mt-0.5" />
                 <div>
                   <p className={`font-semibold text-sm leading-relaxed ${cv(isLight, 'text-stone-900', 'text-white')}`}>
-                    Your actual savings rate is{' '}
-                    <span className="text-red-500">{SUMMARY.actualRate}%</span> — you reported{' '}
-                    <span className={cv(isLight, 'text-stone-900', 'text-white')}>{SUMMARY.statedRate}%</span>.
+                    Actual savings rate:{' '}
+                    <span className="text-red-500">{SUMMARY.actualRate}%</span>
+                    <span className={`font-normal ${cv(isLight, 'text-stone-500', 'text-slate-400')}`}> (reported {SUMMARY.statedRate}%)</span>
                   </p>
-                  <p className={`text-sm mt-2 leading-relaxed ${cv(isLight, 'text-stone-500', 'text-slate-400')}`}>
-                    This{' '}
-                    <span className="text-amber-500 font-semibold">{SUMMARY.gapPct}% behavioural gap</span>{' '}
-                    is costing you{' '}
-                    <span className="text-amber-500 font-semibold">${SUMMARY.costPerMonth}/month</span> in missed savings.
+                  <p className={`text-xs mt-1 leading-relaxed ${cv(isLight, 'text-stone-500', 'text-slate-400')}`}>
+                    <span className="text-amber-500 font-semibold">{SUMMARY.gapPct}% gap</span>{' '}
+                    costs you{' '}
+                    <span className="text-amber-500 font-semibold">${SUMMARY.costPerMonth}/month</span>.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Insight callout */}
-            <div className={`rounded-2xl border p-5 mb-5 ${cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')}`}>
-              <p className={`text-sm leading-relaxed italic font-display font-semibold ${cv(isLight, 'text-stone-700', 'text-slate-300')}`}>
+            {/* Insight */}
+            <div className={`rounded-xl border p-4 ${cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')}`}>
+              <p className={`text-xs leading-relaxed italic font-display font-semibold ${cv(isLight, 'text-stone-700', 'text-slate-300')}`}>
                 "The gap between what you think you spend and what you actually spend — that's where wealth is lost."
               </p>
             </div>
@@ -344,7 +314,7 @@ export function GapRevealPage() {
             {/* CTA */}
             <Link
               to="/dashboard"
-              className={`flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-bold text-base transition-all ${
+              className={`flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm transition-all ${
                 cv(isLight,
                   'bg-stone-900 text-stone-50 hover:bg-stone-700 shadow-lg shadow-stone-900/20',
                   'bg-white text-stone-900 hover:bg-cream-100 shadow-lg shadow-white/10',
@@ -352,17 +322,18 @@ export function GapRevealPage() {
               }`}
             >
               See Your Readiness Scores
-              <ChevronRight size={18} />
+              <ChevronRight size={16} />
             </Link>
 
-            <p className={`mt-4 text-center text-xs ${cv(isLight, 'text-stone-400', 'text-white/20')}`}>
+            <p className={`text-center text-xs ${cv(isLight, 'text-stone-400', 'text-white/20')}`}>
               {isRealData
                 ? 'Based on your uploaded transaction history.'
-                : 'Based on sample data. Upload your own transactions for accurate results.'}
+                : 'Based on sample data.'}
             </p>
           </div>
         </div>
-      </div>
+      </div>{/* inner max-w wrapper */}
+      </div>{/* overflow-y-auto */}
     </div>
   );
 }

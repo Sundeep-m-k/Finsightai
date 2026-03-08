@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ChevronRight, ChevronLeft,
   TrendingUp, Shield, PiggyBank, Target,
@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useProfile } from '../context/ProfileContext';
 import { useTheme } from '../context/ThemeContext';
+import { useNavSlot } from '../context/NavSlotContext';
 import { submitOnboard } from '../lib/api';
 import type { PrimaryGoal, RiskTolerance } from 'shared/schemas/profile';
 
@@ -340,6 +341,7 @@ export function OnboardingPage() {
   const navigate = useNavigate();
   const { setQuestionnaire, setSessionId } = useProfile();
   const { theme } = useTheme();
+  const { setSlot, clearSlot } = useNavSlot();
   const isLight = theme === 'light';
 
   const [step, setStep]           = useState(0);
@@ -387,6 +389,20 @@ export function OnboardingPage() {
   const progress     = (step / TOTAL_STEPS) * 100;
   const slideClass   = slideDir === 'right' ? 'animate-slide-right' : 'animate-slide-left';
 
+  // Inject step counter into global nav centre slot
+  useEffect(() => {
+    setSlot(
+      <span className={`text-xs sm:text-sm font-semibold tabular-nums px-3 py-1 rounded-full border ${
+        isLight
+          ? 'border-stone-200 text-stone-500 bg-stone-100'
+          : 'border-white/10 text-slate-400 bg-white/5'
+      }`}>
+        Step {step + 1} / {TOTAL_STEPS}
+      </span>
+    );
+    return () => clearSlot();
+  }, [step, isLight, setSlot, clearSlot]);
+
   const stepComponents = [
     <GoalStep form={form} setForm={setForm} isLight={isLight} />,
     <MoneyInputStep form={form} setForm={setForm} field="income" isLight={isLight}
@@ -405,39 +421,23 @@ export function OnboardingPage() {
   ];
 
   return (
-    /* ── Full-screen wrapper ── background fills edge to edge on every device */
-    <div className={`min-h-screen flex flex-col ${c(isLight, 'bg-cream-100', 'bg-[#0a0a0a]')}`}>
+    <div className={`flex-1 flex flex-col overflow-hidden ${c(isLight, 'bg-cream-100', 'bg-[#0a0a0a]')}`}>
 
-      {/* ── Sticky header ────────────────────────────────────────────────── */}
-      <header className={`sticky top-0 z-20 border-b ${c(isLight, 'bg-cream-100/95 border-stone-200', 'bg-[#0a0a0a]/95 border-white/5')} backdrop-blur-sm`}>
-        <div className="max-w-2xl mx-auto px-6 sm:px-8 py-5">
-          <div className="flex items-center justify-between mb-4">
-            <Link to="/" className="flex items-center gap-2.5">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-display font-black text-xs ${
-                c(isLight, 'bg-stone-900 text-gold-400', 'bg-white text-stone-900')
-              }`}>FS</div>
-              <span className={`font-semibold text-sm ${c(isLight, 'text-stone-900', 'text-white')}`}>FinSight AI</span>
-            </Link>
-            <span className={`text-sm font-medium tabular-nums ${c(isLight, 'text-stone-400', 'text-slate-500')}`}>
-              Step {step + 1} of {TOTAL_STEPS}
-            </span>
-          </div>
-          {/* Progress bar */}
-          <div className={`h-1 rounded-full overflow-hidden ${c(isLight, 'bg-stone-200', 'bg-slate-800')}`}>
-            <div className="h-full bg-gold-500 rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
-          </div>
-          {/* Step dots */}
-          <div className="flex gap-1.5 mt-3 justify-center">
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-              <div key={i} className={`h-1 rounded-full transition-all duration-300 ${
-                i < step   ? 'bg-gold-500 w-6'
-                : i === step ? 'bg-gold-400 w-9'
-                : c(isLight, 'bg-stone-200 w-6', 'bg-slate-800 w-6')
-              }`} />
-            ))}
-          </div>
-        </div>
-      </header>
+      {/* Progress bar — sits just below the global nav */}
+      <div className={`h-1 ${c(isLight, 'bg-stone-200', 'bg-slate-800')}`}>
+        <div className="h-full bg-gold-500 transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
+      </div>
+
+      {/* Step dots */}
+      <div className="flex gap-1.5 pt-3 justify-center">
+        {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+          <div key={i} className={`h-1 rounded-full transition-all duration-300 ${
+            i < step    ? 'bg-gold-500 w-6'
+            : i === step ? 'bg-gold-400 w-9'
+            : c(isLight, 'bg-stone-200 w-6', 'bg-slate-800 w-6')
+          }`} />
+        ))}
+      </div>
 
       {/* ── Step content ─────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto">

@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
-import { ChevronRight, Trophy } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ChevronRight, Zap } from 'lucide-react';
+import { useProfile } from '../context/ProfileContext';
+import { DEMO_PROFILE } from '../lib/demoData';
 import { useTheme } from '../context/ThemeContext';
-import { ThemeToggle } from '../components/common/ThemeToggle';
 
 // ─── Team data ─────────────────────────────────────────────────────────────────
 
@@ -48,65 +49,28 @@ const features = [
 export function LandingPage() {
   const { theme } = useTheme();
   const isLight = theme === 'light';
+  const navigate = useNavigate();
+  const { setProfile } = useProfile();
+
+  function handleDemo() {
+    setProfile(DEMO_PROFILE);
+    navigate('/summary');
+  }
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans ${
+    <div className={`flex flex-col font-sans ${
       isLight ? 'bg-cream-100 text-stone-900' : 'bg-[#0a0a0a] text-white'
     }`}>
 
-      {/* ── Nav ──────────────────────────────────────────────────────────────── */}
-      <nav className={`px-8 py-5 flex items-center justify-between sticky top-0 z-20 backdrop-blur-sm border-b ${
-        isLight
-          ? 'bg-cream-100/90 border-cream-300'
-          : 'bg-[#0a0a0a]/90 border-white/5'
-      }`}>
-        {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-display font-black text-sm ${
-            isLight ? 'bg-stone-900 text-gold-400' : 'bg-white text-stone-900'
-          }`}>
-            FS
-          </div>
-          <span className={`font-semibold tracking-tight text-base ${isLight ? 'text-stone-900' : 'text-white'}`}>
-            FinSight AI
-          </span>
-        </div>
-
-        {/* Centre badge */}
-        <div className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold ${
-          isLight
-            ? 'border-gold-600/40 bg-gold-400/10 text-gold-600'
-            : 'border-gold-500/30 bg-gold-500/10 text-gold-400'
-        }`}>
-          <Trophy size={14} />
-          HackBU 2026 · Built in 24 hours
-        </div>
-
-        {/* Right: toggle + CTA */}
-        <div className="flex items-center gap-4">
-          <ThemeToggle />
-          <Link
-            to="/onboard"
-            className={`hidden sm:inline-flex items-center gap-2 text-base font-semibold px-5 py-2.5 rounded-xl transition-all ${
-              isLight
-                ? 'bg-stone-900 text-stone-50 hover:bg-stone-700'
-                : 'bg-white text-stone-900 hover:bg-cream-100'
-            }`}
-          >
-            Get started <ChevronRight size={16} />
-          </Link>
-        </div>
-      </nav>
-
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <section className="flex-1 flex flex-col items-center justify-center px-6 py-28 text-center">
+      <section className="relative flex-1 flex flex-col items-center justify-center px-6 py-8 text-center min-h-[calc(100dvh-4rem)]">
 
-        {/* Tagline — large, prominent */}
+        {/* Tagline */}
         <p
-          className={`font-display font-semibold italic mb-6 animate-fade-up ${
+          className={`font-display font-semibold italic mb-4 animate-fade-up ${
             isLight ? 'text-stone-500' : 'text-slate-400'
           }`}
-          style={{ fontSize: 'clamp(1.5rem, 3vw, 2.5rem)' }}
+          style={{ fontSize: 'clamp(1.2rem, 2.5vw, 2rem)' }}
         >
           A mentor, not a calculator.
         </p>
@@ -116,7 +80,7 @@ export function LandingPage() {
           className={`font-display font-black leading-[1.0] tracking-tight max-w-4xl animate-fade-up ${
             isLight ? 'text-stone-900' : 'text-white'
           }`}
-          style={{ fontSize: 'clamp(2.8rem, 7vw, 6rem)', animationDelay: '0.06s' }}
+          style={{ fontSize: 'clamp(2.5rem, 6.5vw, 5.5rem)', animationDelay: '0.06s' }}
         >
           You probably spend<br />
           <span className={isLight ? 'text-gold-600' : 'text-gold-400'}>
@@ -126,7 +90,7 @@ export function LandingPage() {
 
         {/* Sub-copy */}
         <p
-          className={`mt-10 text-xl leading-relaxed max-w-xl animate-fade-up ${
+          className={`mt-6 text-lg leading-relaxed max-w-xl animate-fade-up ${
             isLight ? 'text-stone-600' : 'text-slate-400'
           }`}
           style={{ animationDelay: '0.12s' }}
@@ -135,23 +99,22 @@ export function LandingPage() {
           Because nobody ever showed you the gap.
         </p>
         <p
-          className={`mt-4 text-lg leading-relaxed max-w-lg animate-fade-up ${
+          className={`mt-3 text-base leading-relaxed max-w-lg animate-fade-up ${
             isLight ? 'text-stone-500' : 'text-slate-500'
           }`}
           style={{ animationDelay: '0.16s' }}
         >
-          Upload 3 months of bank transactions.<br />
-          We'll show you exactly where it goes.
+          Upload 3 months of bank transactions. We'll show you exactly where it goes.
         </p>
 
         {/* CTAs */}
         <div
-          className="mt-12 flex flex-col sm:flex-row gap-4 animate-fade-up"
+          className="mt-8 flex flex-col sm:flex-row gap-4 animate-fade-up"
           style={{ animationDelay: '0.22s' }}
         >
           <Link
             to="/onboard"
-            className={`group inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base transition-all ${
+            className={`group inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-base transition-all ${
               isLight
                 ? 'bg-stone-900 text-stone-50 hover:bg-stone-700 shadow-lg shadow-stone-900/20'
                 : 'bg-white text-stone-900 hover:bg-cream-100 shadow-lg shadow-white/10'
@@ -160,36 +123,56 @@ export function LandingPage() {
             Show me my numbers
             <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
           </Link>
-          <Link
-            to="/upload"
-            className={`inline-flex items-center gap-2 px-8 py-4 rounded-xl border text-base font-medium transition-colors ${
+          <button
+            onClick={handleDemo}
+            className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-xl border text-base font-medium transition-colors ${
               isLight
-                ? 'border-stone-300 text-stone-600 hover:border-stone-500 hover:text-stone-900'
-                : 'border-white/15 text-slate-400 hover:border-white/30 hover:text-white'
+                ? 'border-gold-500/50 text-gold-600 hover:border-gold-500 hover:bg-gold-400/10'
+                : 'border-gold-500/40 text-gold-400 hover:border-gold-500/70 hover:bg-gold-500/10'
             }`}
           >
-            Try with sample data
-          </Link>
+            <Zap size={16} />
+            Try instant demo
+          </button>
         </div>
 
-        {/* Mobile HackBU badge */}
-        <div className={`mt-10 sm:hidden inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold ${
-          isLight
-            ? 'border-gold-600/40 bg-gold-400/10 text-gold-600'
-            : 'border-gold-500/30 bg-gold-500/10 text-gold-400'
-        }`}>
-          <Trophy size={13} />
-          HackBU 2026 · Built in 24 hours
+        {/* ── Scroll hint — in-flow, centred below CTAs ── */}
+        <div className="mt-10 flex flex-col items-center gap-2 pointer-events-none select-none animate-scroll-fade">
+          <span className={`text-xs font-semibold tracking-[0.22em] uppercase ${
+            isLight ? 'text-stone-400' : 'text-slate-500'
+          }`}>
+            Discover more
+          </span>
+          <div className="flex flex-col items-center gap-0.5">
+            {[0, 0.2, 0.4].map((delay) => (
+              <svg
+                key={delay}
+                width="26" height="15" viewBox="0 0 26 15" fill="none"
+                className={`animate-scroll-dot ${isLight ? 'text-stone-400' : 'text-slate-400'}`}
+                style={{ animationDelay: `${delay}s` }}
+              >
+                <polyline
+                  points="2,2 13,12 24,2"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ── Manifesto ─────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-stone-950 px-8 py-28">
+      <section className={`relative overflow-hidden px-6 sm:px-8 py-8 sm:py-12 ${
+        isLight ? 'bg-cream-300' : 'bg-stone-950'
+      }`}>
 
         {/* Ambient gold glow */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full opacity-[0.07]"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full opacity-[0.12]"
             style={{ background: 'radial-gradient(circle, #d4a849 0%, transparent 70%)' }}
           />
         </div>
@@ -197,24 +180,30 @@ export function LandingPage() {
         <div className="relative max-w-4xl mx-auto">
 
           {/* Eyebrow */}
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-400/60 mb-10 text-center">
+          <p className={`text-sm sm:text-base font-display font-bold uppercase tracking-[0.2em] mb-4 text-center ${
+            isLight ? 'text-gold-600/80' : 'text-gold-400/70'
+          }`}>
             What we actually are
           </p>
 
           {/* Main quote */}
           <h2
-            className="font-display font-black text-white leading-[1.05] tracking-tight mb-8 text-center"
-            style={{ fontSize: 'clamp(2rem, 5vw, 4rem)' }}
+            className={`font-display font-black leading-[1.05] tracking-tight mb-4 text-center ${
+              isLight ? 'text-stone-900' : 'text-white'
+            }`}
+            style={{ fontSize: 'clamp(1.6rem, 4vw, 3.2rem)' }}
           >
             Not your bank.<br />
             Not your dad.<br />
-            <span className="text-gold-400">Your financial mirror.</span>
+            <span className={isLight ? 'text-gold-600' : 'text-gold-400'}>Your financial mirror.</span>
           </h2>
 
           {/* Emotional paragraph */}
           <p
-            className="text-slate-400 leading-relaxed max-w-2xl mx-auto text-center mb-4"
-            style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)' }}
+            className={`leading-relaxed max-w-2xl mx-auto text-center mb-2 ${
+              isLight ? 'text-stone-600' : 'text-slate-400'
+            }`}
+            style={{ fontSize: 'clamp(0.88rem, 1.6vw, 1rem)' }}
           >
             Whether you're a student on a stipend, a first-generation earner
             figuring it out alone, or a professional who just never learned the rules —
@@ -223,15 +212,21 @@ export function LandingPage() {
 
           {/* International student callout */}
           <p
-            className="font-display font-semibold italic text-gold-400/70 text-center mb-16"
-            style={{ fontSize: 'clamp(1.1rem, 2vw, 1.35rem)' }}
+            className={`font-display font-semibold italic text-center mb-6 ${
+              isLight ? 'text-gold-600/80' : 'text-gold-400/70'
+            }`}
+            style={{ fontSize: 'clamp(0.9rem, 1.6vw, 1.1rem)' }}
           >
             Especially for international students navigating a financial system
             that was never explained to them.
           </p>
 
-          {/* Three pillars — bold text only, no emojis */}
-          <div className="grid sm:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+          {/* Three pillars */}
+          <div className={`grid grid-cols-1 sm:grid-cols-3 gap-px rounded-xl overflow-hidden border ${
+            isLight
+              ? 'bg-stone-300/60 border-stone-300'
+              : 'bg-white/[0.06] border-white/[0.06]'
+          }`}>
             {[
               {
                 title: 'Your wallet, decoded.',
@@ -248,60 +243,230 @@ export function LandingPage() {
             ].map((pillar, i) => (
               <div
                 key={pillar.title}
-                className="bg-stone-950 px-8 py-8 hover:bg-white/[0.04] transition-colors"
+                className={`px-5 py-5 transition-colors ${
+                  isLight
+                    ? 'bg-cream-200 hover:bg-cream-100'
+                    : 'bg-stone-950 hover:bg-white/[0.04]'
+                }`}
               >
-                <span className="font-display font-black text-gold-400/40 text-5xl leading-none block mb-5">
+                <span className={`font-display font-black text-3xl leading-none block mb-2 ${
+                  isLight ? 'text-gold-500/50' : 'text-gold-400/40'
+                }`}>
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <h3 className="font-display font-black text-white text-xl leading-snug mb-3">
+                <h3 className={`font-display font-black text-base leading-snug mb-1.5 ${
+                  isLight ? 'text-stone-900' : 'text-white'
+                }`}>
                   {pillar.title}
                 </h3>
-                <p className="text-slate-500 text-sm leading-relaxed">
+                <p className={`text-xs leading-relaxed ${
+                  isLight ? 'text-stone-500' : 'text-slate-400'
+                }`}>
                   {pillar.desc}
                 </p>
               </div>
             ))}
           </div>
 
-          {/* Bottom companion line */}
-          <p className="text-center text-slate-600 text-sm mt-10 tracking-wide">
-            Honest advice · Grounded in data · Never in guesswork
-          </p>
+          {/* Scroll hint */}
+          <div className="mt-5 flex flex-col items-center gap-2 pointer-events-none select-none animate-scroll-fade">
+            <span className={`text-xs font-semibold tracking-[0.22em] uppercase ${
+              isLight ? 'text-gold-600/60' : 'text-gold-400/50'
+            }`}>
+              Understand our working
+            </span>
+            <div className="flex flex-col items-center gap-0.5">
+              {[0, 0.2, 0.4].map((delay) => (
+                <svg key={delay} width="26" height="15" viewBox="0 0 26 15" fill="none"
+                  className={`animate-scroll-dot ${isLight ? 'text-gold-500' : 'text-gold-500/50'}`}
+                  style={{ animationDelay: `${delay}s` }}>
+                  <polyline points="2,2 13,12 24,2" stroke="currentColor"
+                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ))}
+            </div>
+          </div>
+
         </div>
       </section>
 
       {/* ── Divider ───────────────────────────────────────────────────────────── */}
       <div className={`mx-8 h-px ${isLight ? 'bg-cream-300' : 'bg-white/5'}`} />
 
-      {/* ── Features ─────────────────────────────────────────────────────────── */}
-      <section className="px-8 py-24 max-w-3xl mx-auto w-full">
-        <p className={`text-sm font-semibold uppercase tracking-widest mb-14 ${
-          isLight ? 'text-stone-400' : 'text-slate-600'
-        }`}>
-          How it works
-        </p>
-        <div className="space-y-14">
-          {features.map((f) => (
-            <div key={f.num} className="flex gap-8">
-              <span className={`font-display font-black text-5xl leading-none shrink-0 w-16 ${
-                isLight ? 'text-cream-400' : 'text-white/10'
-              }`}>
-                {f.num}
-              </span>
-              <div>
-                <h3 className={`font-display font-bold text-2xl leading-snug mb-3 ${
-                  isLight ? 'text-stone-900' : 'text-white'
+      {/* ── Features / How it works ───────────────────────────────────────────── */}
+      <section className={`flex flex-col justify-center px-6 sm:px-12 py-10 sm:py-16 w-full min-h-[calc(100dvh-4rem)] ${
+        isLight ? 'bg-cream-100' : 'bg-[#0a0a0a]'
+      }`}>
+        <div className="max-w-4xl mx-auto w-full">
+
+          {/* Eyebrow */}
+          <p className={`text-sm sm:text-base font-display font-bold uppercase tracking-[0.2em] mb-12 ${
+            isLight ? 'text-gold-600/80' : 'text-gold-400/60'
+          }`}>
+            How it works
+          </p>
+
+          {/* Steps */}
+          <div className="space-y-12">
+            {features.map((f) => (
+              <div key={f.num} className="flex gap-8 items-start group">
+                {/* Big number */}
+                <span
+                  className={`font-display font-black leading-none shrink-0 select-none ${
+                    isLight ? 'text-stone-200' : 'text-white/8'
+                  }`}
+                  style={{ fontSize: 'clamp(4rem, 8vw, 7rem)', width: '6rem' }}
+                >
+                  {f.num}
+                </span>
+
+                {/* Content + gold left border accent */}
+                <div className={`border-l-2 pl-8 pt-1 ${
+                  isLight ? 'border-gold-500/40' : 'border-gold-500/30'
                 }`}>
-                  {f.title}
-                </h3>
-                <p className={`text-base leading-relaxed ${
-                  isLight ? 'text-stone-500' : 'text-slate-500'
-                }`}>
-                  {f.desc}
-                </p>
+                  <h3
+                    className={`font-display font-black leading-snug mb-3 ${
+                      isLight ? 'text-stone-900' : 'text-white'
+                    }`}
+                    style={{ fontSize: 'clamp(1.35rem, 2.8vw, 2rem)' }}
+                  >
+                    {f.title}
+                  </h3>
+                  <p
+                    className={`leading-relaxed ${
+                      isLight ? 'text-stone-500' : 'text-slate-400'
+                    }`}
+                    style={{ fontSize: 'clamp(0.95rem, 1.6vw, 1.1rem)' }}
+                  >
+                    {f.desc}
+                  </p>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Scroll hint */}
+          <div className="mt-14 flex flex-col items-center gap-2 pointer-events-none select-none animate-scroll-fade">
+            <span className={`text-xs font-semibold tracking-[0.22em] uppercase ${
+              isLight ? 'text-stone-400' : 'text-slate-500'
+            }`}>
+              Why this problem
+            </span>
+            <div className="flex flex-col items-center gap-0.5">
+              {[0, 0.2, 0.4].map((delay) => (
+                <svg key={delay} width="26" height="15" viewBox="0 0 26 15" fill="none"
+                  className={`animate-scroll-dot ${isLight ? 'text-stone-400' : 'text-slate-500'}`}
+                  style={{ animationDelay: `${delay}s` }}>
+                  <polyline points="2,2 13,12 24,2" stroke="currentColor" strokeWidth="2"
+                    strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ))}
             </div>
-          ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── Why we built this ─────────────────────────────────────────────────── */}
+      <section className={`relative overflow-hidden px-6 sm:px-8 min-h-[100dvh] flex items-center ${
+        isLight ? 'bg-cream-200' : 'bg-stone-950'
+      }`}>
+
+        {/* Subtle ambient glow */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div
+            className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full opacity-[0.06]"
+            style={{ background: 'radial-gradient(circle, #d4a849 0%, transparent 70%)' }}
+          />
+        </div>
+
+        <div className="relative max-w-3xl mx-auto w-full py-10">
+
+          {/* Eyebrow */}
+          <p className={`text-sm sm:text-base font-display font-bold uppercase tracking-[0.2em] mb-6 text-center ${
+            isLight ? 'text-gold-600/80' : 'text-gold-400/70'
+          }`}>
+            Why this problem
+          </p>
+
+          {/* Lead */}
+          <p
+            className={`font-display font-bold leading-snug text-center mb-6 ${isLight ? 'text-stone-800' : 'text-white'}`}
+            style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)' }}
+          >
+            Three researchers. Three advisors.<br />
+            One shared problem.
+          </p>
+
+          <p
+            className={`leading-relaxed text-center mb-4 ${isLight ? 'text-stone-600' : 'text-slate-300'}`}
+            style={{ fontSize: 'clamp(1rem, 1.8vw, 1.15rem)' }}
+          >
+            We were managing stipends, student loans, and international finances —
+            yet every financial tool assumed we had salaries and retirement accounts.
+          </p>
+
+          <p
+            className={`font-display font-bold text-center mb-4 ${isLight ? 'text-stone-800' : 'text-white'}`}
+            style={{ fontSize: 'clamp(1.1rem, 2vw, 1.4rem)' }}
+          >
+            We didn't.
+          </p>
+
+          <p
+            className={`leading-relaxed text-center mb-4 ${isLight ? 'text-stone-600' : 'text-slate-300'}`}
+            style={{ fontSize: 'clamp(1rem, 1.8vw, 1.15rem)' }}
+          >
+            And when we finally saved money, we didn't know where to invest it.
+          </p>
+
+          <p
+            className={`font-display font-semibold italic text-center mb-8 ${isLight ? 'text-gold-600' : 'text-gold-400'}`}
+            style={{ fontSize: 'clamp(1rem, 1.8vw, 1.15rem)' }}
+          >
+            So we built FinScope AI — financial guidance designed for students
+            and early professionals.
+          </p>
+
+          {/* Divider */}
+          <div className="flex items-center justify-center mb-6">
+            <div className={`h-px w-20 ${isLight ? 'bg-gold-500/40' : 'bg-gold-400/30'}`} />
+          </div>
+
+          {/* Scorsese quote */}
+          <p
+            className={`font-display font-semibold italic text-center mb-3 ${
+              isLight ? 'text-gold-600' : 'text-gold-400'
+            }`}
+            style={{ fontSize: 'clamp(1.3rem, 3vw, 2rem)' }}
+          >
+            "The most personal is the most creative."
+          </p>
+          <p className={`text-center text-sm tracking-widest uppercase mb-8 font-display font-bold ${
+            isLight ? 'text-stone-500' : 'text-slate-300'
+          }`}>
+            — <span className={isLight ? 'text-gold-600' : 'text-gold-400'}>Martin Scorsese</span>
+          </p>
+
+          {/* Scroll hint */}
+          <div className="flex flex-col items-center gap-2 pointer-events-none select-none animate-scroll-fade">
+            <span className={`text-xs font-semibold tracking-[0.22em] uppercase ${
+              isLight ? 'text-gold-600/60' : 'text-gold-400/50'
+            }`}>
+              Meet the creators
+            </span>
+            <div className="flex flex-col items-center gap-0.5">
+              {[0, 0.2, 0.4].map((delay) => (
+                <svg key={delay} width="26" height="15" viewBox="0 0 26 15" fill="none"
+                  className={`animate-scroll-dot ${isLight ? 'text-gold-500' : 'text-gold-500/50'}`}
+                  style={{ animationDelay: `${delay}s` }}>
+                  <polyline points="2,2 13,12 24,2" stroke="currentColor"
+                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ))}
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -309,7 +474,7 @@ export function LandingPage() {
       <div className={`mx-8 h-px ${isLight ? 'bg-cream-300' : 'bg-white/5'}`} />
 
       {/* ── Team section ─────────────────────────────────────────────────────── */}
-      <section className="px-8 py-24 max-w-4xl mx-auto w-full">
+      <section className="px-6 sm:px-8 py-12 sm:py-20 max-w-4xl mx-auto w-full">
         <div className="mb-14">
           <p className={`text-sm font-semibold uppercase tracking-widest mb-2 ${
             isLight ? 'text-stone-400' : 'text-slate-600'

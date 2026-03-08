@@ -2,10 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ChevronRight, AlertTriangle, TrendingDown, TrendingUp,
-  CreditCard, ShieldAlert, Activity, Landmark, ChevronDown, Globe2, RefreshCw,
+  CreditCard, ShieldAlert, Activity, Landmark, ChevronDown, Globe2,
 } from 'lucide-react';
 import { useProfile } from '../context/ProfileContext';
 import { useTheme } from '../context/ThemeContext';
+import { useNavSlot } from '../context/NavSlotContext';
 import { useLiveRate } from '../hooks/useLiveRate';
 import type { BehavioralFlag } from 'shared/schemas/profile';
 
@@ -25,13 +26,6 @@ function fmtAmt(amount: number, code: string): string {
   }
 }
 
-function timeAgo(d: Date | null): string {
-  if (!d) return '';
-  const s = Math.floor((Date.now() - d.getTime()) / 1000);
-  if (s < 60) return 'just now';
-  const m = Math.floor(s / 60);
-  return `${m}m ago`;
-}
 
 // ─── Currency data ─────────────────────────────────────────────────────────────
 
@@ -403,16 +397,17 @@ function CelebrationModal({ months, onDismiss }: { months: number; onDismiss: ()
 export function ExpenseSummaryPage() {
   const { profile } = useProfile();
   const { theme } = useTheme();
+  const { setSlot, clearSlot } = useNavSlot();
   const navigate = useNavigate();
   const isLight = theme === 'light';
 
   const [celebrated, setCelebrated] = useState(false);
   const [period, setPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [homeCurrency, setHomeCurrency] = useState<string | null>(() =>
-    localStorage.getItem('finsight_home_currency') ?? null,
+    localStorage.getItem('finscope_home_currency') ?? null,
   );
 
-  const { rate, loading: rateLoading, updatedAt } = useLiveRate('USD', homeCurrency);
+  const { rate } = useLiveRate('USD', homeCurrency);
 
   const mult = period === 'annual' ? 12 : 1;
   const bh = profile.behavioral;
@@ -428,173 +423,106 @@ export function ExpenseSummaryPage() {
 
   const handleSetHome = useCallback((v: string | null) => {
     setHomeCurrency(v);
-    if (v) localStorage.setItem('finsight_home_currency', v);
-    else localStorage.removeItem('finsight_home_currency');
+    if (v) localStorage.setItem('finscope_home_currency', v);
+    else localStorage.removeItem('finscope_home_currency');
   }, []);
 
   const dismiss = useCallback(() => setCelebrated(true), []);
 
+  // Inject months badge into global nav
+  useEffect(() => {
+    setSlot(
+      <div className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${
+        isLight
+          ? 'border-gold-500/40 bg-gold-400/10 text-gold-600'
+          : 'border-gold-500/30 bg-gold-500/10 text-gold-400'
+      }`}>
+        <span>🏆</span>
+        {months} month{months !== 1 ? 's' : ''} of data
+      </div>
+    );
+    return () => clearSlot();
+  }, [months, isLight, setSlot, clearSlot]);
+
   return (
-    <div className={`min-h-screen flex flex-col ${cv(isLight, 'bg-cream-100', 'bg-[#0a0a0a]')}`}>
+    <div className={`flex-1 flex flex-col overflow-hidden ${cv(isLight, 'bg-cream-100', 'bg-[#0a0a0a]')}`}>
 
       {/* ── Celebration modal ─────────────────────────────────────────────────── */}
       {!celebrated && <CelebrationModal months={months} onDismiss={dismiss} />}
 
-      {/* ── Nav ──────────────────────────────────────────────────────────────── */}
-      <nav className={`px-6 py-4 flex items-center justify-between border-b sticky top-0 z-10 backdrop-blur-sm ${
-        cv(isLight, 'border-stone-200 bg-cream-100/90', 'border-white/5 bg-[#0a0a0a]/90')
-      }`}>
-        <Link to="/" className="flex items-center gap-2.5">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-display font-black text-xs ${
-            cv(isLight, 'bg-stone-900 text-gold-400', 'bg-white text-stone-900')
-          }`}>FS</div>
-          <span className={`font-semibold tracking-tight text-sm ${cv(isLight, 'text-stone-900', 'text-white')}`}>FinSight AI</span>
-        </Link>
-
-        {/* Months badge — subtle after modal */}
-        <div className={`text-xs font-semibold px-3 py-1.5 rounded-full border flex items-center gap-1.5 ${
-          cv(isLight, 'border-gold-500/40 bg-gold-400/10 text-gold-600', 'border-gold-500/30 bg-gold-500/10 text-gold-400')
-        }`}>
-          <span>🏆</span>
-          {months} month{months !== 1 ? 's' : ''} of data
-        </div>
-      </nav>
-
       {/* ── Content ─────────────────────────────────────────────────────────────── */}
-      <div className="flex-1 max-w-6xl mx-auto w-full px-6 xl:px-8 py-10">
+      <div className="flex-1 overflow-y-auto">
+      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 xl:px-8 py-4">
 
-        {/* Heading */}
-        <div className="animate-fade-up mb-8">
-          <p className={`text-sm font-medium mb-2 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>
-            We understood your transactions
-          </p>
-          <h1 className={`font-display font-black leading-tight ${cv(isLight, 'text-stone-900', 'text-white')}`}
-            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
-            Here's your spending,{' '}
-            <span className="text-gold-500">by the numbers.</span>
-          </h1>
-          <p className={`mt-3 max-w-xl text-base leading-relaxed ${cv(isLight, 'text-stone-500', 'text-slate-500')}`}>
-            We categorised every transaction and compared it against what you told us.
-            Check this looks right before we reveal the gaps.
-          </p>
+        {/* ── Compact header row: title + period toggle ─────────────────────── */}
+        <div className="flex items-center justify-between gap-4 mb-4 animate-fade-up">
+          <div>
+            <h1 className={`font-display font-black text-2xl leading-tight ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+              Your spending,{' '}
+              <span className="text-gold-500">by the numbers.</span>
+            </h1>
+            <p className={`text-xs mt-0.5 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>
+              Every transaction categorised · compare against what you reported
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <PeriodToggle period={period} onChange={setPeriod} isLight={isLight} />
+          </div>
         </div>
 
-        {/* ── Period toggle ─────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-3 mb-5 animate-fade-up" style={{ animationDelay: '0.06s' }}>
-          <PeriodToggle period={period} onChange={setPeriod} isLight={isLight} />
-          <span className={`text-xs ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>
-            {period === 'monthly' ? 'Per month average' : 'Projected annual (×12)'}
-          </span>
-        </div>
-
-        {/* ── International currency card ───────────────────────────────────── */}
-        <div className={`rounded-2xl border mb-8 overflow-hidden animate-fade-up ${
+        {/* ── Currency bar (compact) ────────────────────────────────────────── */}
+        <div className={`flex flex-wrap items-center gap-2 mb-4 px-3 py-2 rounded-xl border animate-fade-up ${
           cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')
         }`} style={{ animationDelay: '0.10s' }}>
+          <Globe2 size={13} className="text-gold-500 shrink-0" />
+          <span className={`text-xs font-medium shrink-0 ${cv(isLight, 'text-stone-500', 'text-slate-500')}`}>Home currency:</span>
 
-          {/* Header row */}
-          <div className={`flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b ${
-            cv(isLight, 'border-stone-100', 'border-white/5')
-          }`}>
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(212,168,73,0.12)' }}>
-                <Globe2 size={15} className="text-gold-500" />
-              </div>
-              <div>
-                <p className={`text-sm font-bold ${cv(isLight, 'text-stone-900', 'text-white')}`}>
-                  International student?
-                </p>
-                <p className={`text-xs ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>
-                  Pick your home currency — we'll show every amount side by side
-                </p>
-              </div>
-            </div>
+          {QUICK_CURRENCIES.map(qc => {
+            const selected = homeCurrency === qc.code;
+            return (
+              <button key={qc.code} onClick={() => handleSetHome(selected ? null : qc.code)} title={qc.name}
+                className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-xs font-semibold transition-all ${
+                  selected
+                    ? 'border-gold-500 shadow-sm'
+                    : cv(isLight, 'border-stone-200 text-stone-600 hover:border-stone-400', 'border-white/8 text-slate-400 hover:border-white/25')
+                }`}
+                style={selected ? { background: 'rgba(212,168,73,0.18)', borderColor: '#d4a849' } : {}}
+              >
+                <span className="text-sm leading-none">{qc.flag}</span>
+                <span>{qc.code}</span>
+              </button>
+            );
+          })}
 
-            {/* Live rate badge */}
-            {homeCurrency && (
-              <div className={`text-xs px-3 py-1.5 rounded-full border font-semibold flex items-center gap-1.5 ${
-                rate
-                  ? cv(isLight, 'border-emerald-200 bg-emerald-50 text-emerald-700', 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400')
-                  : cv(isLight, 'border-stone-200 text-stone-400', 'border-white/8 text-slate-600')
-              }`}>
-                {rateLoading ? (
-                  <><RefreshCw size={10} className="animate-spin" /><span>Fetching…</span></>
-                ) : rate ? (
-                  <span>
-                    1 USD = {rate >= 1000 ? Math.round(rate).toLocaleString() : rate >= 10 ? rate.toFixed(1) : rate.toFixed(3)} {homeCurrency}
-                    <span className="opacity-50 ml-1">· {timeAgo(updatedAt)}</span>
-                  </span>
-                ) : <span>Rate unavailable</span>}
-              </div>
-            )}
-          </div>
+          {homeCurrency && !QUICK_CURRENCIES.find(q => q.code === homeCurrency) && (
+            <span className="flex items-center gap-1 px-2 py-1 rounded-lg border text-xs font-semibold"
+              style={{ background: 'rgba(212,168,73,0.18)', borderColor: '#d4a849' }}>
+              <span className="text-sm">{CURRENCIES.find(c => c.code === homeCurrency)?.flag ?? '🌐'}</span>
+              <span>{homeCurrency}</span>
+            </span>
+          )}
 
-          {/* Flag quick-picks */}
-          <div className="px-5 py-4">
-            <p className={`text-xs font-semibold uppercase tracking-wider mb-3 ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>
-              Select your home country
-            </p>
-            <div className="flex flex-wrap gap-2 items-center">
-              {QUICK_CURRENCIES.map(qc => {
-                const selected = homeCurrency === qc.code;
-                return (
-                  <button
-                    key={qc.code}
-                    onClick={() => handleSetHome(selected ? null : qc.code)}
-                    title={qc.name}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-semibold transition-all ${
-                      selected
-                        ? 'border-gold-500 text-stone-900 shadow-sm'
-                        : cv(isLight,
-                            'border-stone-200 bg-stone-50 text-stone-700 hover:border-stone-400 hover:bg-white',
-                            'border-white/8 bg-white/4 text-slate-300 hover:border-white/25 hover:text-white',
-                          )
-                    }`}
-                    style={selected ? { background: 'rgba(212,168,73,0.18)', borderColor: '#d4a849', color: cv(isLight, '#1c1917', '#ffffff') } : {}}
-                  >
-                    <span className="text-xl leading-none">{qc.flag}</span>
-                    <span>{qc.code}</span>
-                  </button>
-                );
-              })}
+          <MoreCurrencyDropdown value={homeCurrency} onChange={handleSetHome} isLight={isLight} />
 
-              {/* If a non-quick currency is selected, show it too */}
-              {homeCurrency && !QUICK_CURRENCIES.find(q => q.code === homeCurrency) && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-semibold shadow-sm"
-                  style={{ background: 'rgba(212,168,73,0.18)', borderColor: '#d4a849', color: cv(isLight, '#1c1917', '#ffffff') }}>
-                  <span className="text-xl leading-none">
-                    {CURRENCIES.find(c => c.code === homeCurrency)?.flag ?? '🌐'}
-                  </span>
-                  <span>{homeCurrency}</span>
-                </div>
-              )}
-
-              <MoreCurrencyDropdown value={homeCurrency} onChange={handleSetHome} isLight={isLight} />
-
-              {/* Clear */}
-              {homeCurrency && (
-                <button
-                  onClick={() => handleSetHome(null)}
-                  className={`text-xs px-3 py-2 rounded-xl border transition-colors ${
-                    cv(isLight, 'border-stone-200 text-stone-400 hover:text-red-500 hover:border-red-200', 'border-white/8 text-slate-600 hover:text-red-400 hover:border-red-500/30')
-                  }`}
-                >
-                  Clear ✕
-                </button>
-              )}
-            </div>
-          </div>
+          {homeCurrency && rate && (
+            <span className={`ml-auto text-xs font-medium ${cv(isLight, 'text-emerald-600', 'text-emerald-400')}`}>
+              1 USD = {rate >= 1000 ? Math.round(rate).toLocaleString() : rate >= 10 ? rate.toFixed(1) : rate.toFixed(3)} {homeCurrency}
+            </span>
+          )}
+          {homeCurrency && (
+            <button onClick={() => handleSetHome(null)} className={`text-xs ${cv(isLight, 'text-stone-400 hover:text-red-500', 'text-slate-600 hover:text-red-400')}`}>✕</button>
+          )}
         </div>
 
         {/* ── Main 2-col grid ───────────────────────────────────────────────────── */}
-        <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr] animate-fade-up" style={{ animationDelay: '0.12s' }}>
+        <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr] animate-fade-up" style={{ animationDelay: '0.12s' }}>
 
           {/* Left: stat cards */}
-          <div className="space-y-4">
-            <h2 className={`font-display font-black text-lg ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+          <div className="space-y-3">
+            <h2 className={`font-display font-black text-base ${cv(isLight, 'text-stone-900', 'text-white')}`}>
               {period === 'monthly' ? 'Monthly overview' : 'Annual overview'}
             </h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <StatCard
                 label={period === 'monthly' ? 'Monthly income' : 'Annual income'}
                 usdAmount={income * mult}
@@ -627,17 +555,17 @@ export function ExpenseSummaryPage() {
 
             {/* Flags */}
             {flags.length > 0 && (
-              <div className="mt-2">
-                <h2 className={`font-display font-black text-lg mb-3 ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+              <div className="mt-1">
+                <h2 className={`font-display font-black text-base mb-2 ${cv(isLight, 'text-stone-900', 'text-white')}`}>
                   Issues we spotted
                 </h2>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {flags.map((flag) => {
                     const meta = FLAG_META[flag];
                     if (!meta) return null;
                     const Icon = meta.icon;
                     return (
-                      <div key={flag} className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium ${meta.color}`}>
+                      <div key={flag} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border text-xs font-medium ${meta.color}`}>
                         <Icon size={15} className="shrink-0" />
                         {meta.label}
                       </div>
@@ -651,12 +579,12 @@ export function ExpenseSummaryPage() {
           {/* Right: breakdown */}
           {breakdown.length > 0 && (
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className={`font-display font-black text-lg ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className={`font-display font-black text-base ${cv(isLight, 'text-stone-900', 'text-white')}`}>
                   Spending breakdown
                 </h2>
                 <span className={`text-xs ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>
-                  {period === 'monthly' ? 'per month' : 'per year (est)'}
+                  {period === 'monthly' ? 'per month' : 'per year'}
                 </span>
               </div>
               <div className={`rounded-2xl border divide-y ${
@@ -669,31 +597,24 @@ export function ExpenseSummaryPage() {
                   const homeAmt = (rate && homeCurrency && rate > 0) ? displayAmt * rate : null;
                   const barColor = BAR_COLORS[i] ?? 'bg-stone-200';
                   return (
-                    <div key={cat.category} className="px-5 py-4">
-                      <div className="flex items-center justify-between mb-2.5">
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl leading-none">{catEmoji(cat.category)}</span>
+                    <div key={cat.category} className="px-4 py-2.5">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base leading-none">{catEmoji(cat.category)}</span>
                           <div>
-                            <p className={`text-sm font-semibold capitalize ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+                            <p className={`text-xs font-semibold capitalize ${cv(isLight, 'text-stone-900', 'text-white')}`}>
                               {cat.category}
                             </p>
-                            <p className={`text-xs ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>
-                              {pct}% of spending
-                            </p>
+                            <p className={`text-xs ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>{pct}%</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`font-display font-bold text-base tabular-nums ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+                          <p className={`font-display font-bold text-sm tabular-nums ${cv(isLight, 'text-stone-900', 'text-white')}`}>
                             {fmtAmt(displayAmt, 'USD')}
                           </p>
                           {homeAmt !== null && homeCurrency && (
                             <p className={`text-xs ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>
                               ≈ {fmtAmt(homeAmt, homeCurrency)}
-                            </p>
-                          )}
-                          {period === 'annual' && !homeAmt && (
-                            <p className={`text-xs ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>
-                              {fmtAmt(monthlyAmt, 'USD')}/mo
                             </p>
                           )}
                         </div>
@@ -708,19 +629,11 @@ export function ExpenseSummaryPage() {
         </div>
 
         {/* ── CTA ─────────────────────────────────────────────────────────────── */}
-        <div className="mt-10 animate-fade-up pb-10" style={{ animationDelay: '0.2s' }}>
-          <div className={`rounded-2xl border p-5 mb-5 ${cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')}`}>
-            <p className={`text-sm leading-relaxed ${cv(isLight, 'text-stone-500', 'text-slate-400')}`}>
-              <span className={`font-semibold ${cv(isLight, 'text-stone-900', 'text-white')}`}>Does this look right?</span>{' '}
-              If your numbers look off, go back and re-upload a different date range.
-              Otherwise, let's find the gaps between what you <em>said</em> and what you <em>actually spent</em>.
-            </p>
-          </div>
-
+        <div className="mt-4 animate-fade-up pb-4" style={{ animationDelay: '0.2s' }}>
           <div className="flex gap-3">
             <Link
               to="/gap"
-              className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-base transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition-all ${
                 cv(isLight,
                   'bg-stone-900 text-stone-50 hover:bg-stone-700 shadow-lg shadow-stone-900/20',
                   'bg-white text-stone-900 hover:bg-cream-100 shadow-lg shadow-white/10',
@@ -732,7 +645,7 @@ export function ExpenseSummaryPage() {
             </Link>
             <button
               onClick={() => navigate('/upload')}
-              className={`px-5 py-4 rounded-2xl font-semibold text-sm border transition-all ${
+              className={`px-4 py-3 rounded-2xl font-semibold text-sm border transition-all ${
                 cv(isLight,
                   'border-stone-200 text-stone-600 hover:bg-stone-50',
                   'border-white/10 text-slate-400 hover:bg-white/5',
@@ -743,7 +656,8 @@ export function ExpenseSummaryPage() {
             </button>
           </div>
         </div>
-      </div>
+      </div>{/* inner max-w wrapper */}
+      </div>{/* overflow-y-auto */}
     </div>
   );
 }

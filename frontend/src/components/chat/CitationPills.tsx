@@ -5,7 +5,7 @@ const badgeColorClass: Record<BadgeType, string> = {
   government: 'bg-blue-100 text-blue-800 border-blue-200',
   academic: 'bg-green-100 text-green-800 border-green-200',
   market: 'bg-amber-100 text-amber-800 border-amber-200',
-  'finsight-kb': 'bg-violet-100 text-violet-800 border-violet-200',
+  'finscope-kb': 'bg-violet-100 text-violet-800 border-violet-200', // was finsight-kb
 };
 
 interface CitationPillsProps {

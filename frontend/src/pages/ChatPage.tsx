@@ -64,7 +64,7 @@ export function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100vh - 8rem)' }}>
+    <div className="flex flex-col h-full py-4 sm:py-6">
 
       {/* ── Messages ─────────────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto pb-4">

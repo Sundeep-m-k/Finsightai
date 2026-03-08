@@ -135,7 +135,7 @@ export function DashboardPage() {
   if (!data)   return null;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4 animate-fade-up">
@@ -235,7 +235,7 @@ export function DashboardPage() {
       </div>
 
       {/* ── 90-Day Action Plan ─────────────────────────────────────────────── */}
-      <div>
+      <div className="animate-fade-up" style={{ animationDelay: '0.28s' }}>
         <SectionHeading text="90-Day Action Plan" isLight={isLight} />
         <div className="space-y-3">
           {data.action_plan.map((step, i) => (
