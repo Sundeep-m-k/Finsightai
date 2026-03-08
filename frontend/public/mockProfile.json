@@ -1,0 +1,27 @@
+{
+  "questionnaire": {
+    "income_monthly": 2400,
+    "expenses_monthly": 2100,
+    "loan_balance": 28000,
+    "credit_card_balance": 1200,
+    "primary_goal": "investing",
+    "risk_tolerance": "medium",
+    "months_until_graduation": 18
+  },
+  "behavioral": {
+    "flags": ["spending_gap", "no_emergency_fund"],
+    "avg_monthly_spending": 2150,
+    "savings_rate_pct": 10.4,
+    "said_vs_actual_gap_pct": 22,
+    "expense_breakdown": [
+      { "category": "Food", "amount": 520, "percentage": 24 },
+      { "category": "Rent", "amount": 800, "percentage": 37 },
+      { "category": "Transport", "amount": 180, "percentage": 8 },
+      { "category": "Subscriptions", "amount": 95, "percentage": 4 },
+      { "category": "Other", "amount": 555, "percentage": 26 }
+    ]
+  },
+  "saving_readiness_score": 5,
+  "investment_readiness_score": 4,
+  "analysis_period_months": 6
+}

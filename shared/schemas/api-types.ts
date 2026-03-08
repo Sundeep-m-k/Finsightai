@@ -23,6 +23,7 @@ export interface ChatRequest {
 export interface ChatResponse {
   message: string;
   sources?: Source[];
+  session_id?: string;
 }
 
 /** GET /market/quote (optional) */
