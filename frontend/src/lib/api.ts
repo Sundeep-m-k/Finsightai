@@ -71,19 +71,21 @@ export async function getProfile(sessionId?: string | null): Promise<UserProfile
   return getMockProfile();
 }
 
-/** Get personalized strategy (mock or POST /strategy). */
+/** Get personalized strategy (mock or POST /strategy). Falls back to mock if AI service unreachable. */
 export async function getStrategy(profile: UserProfile): Promise<InsightResponse> {
   if (USE_MOCK) return getMockInsights();
-  const res = await fetch(`${AI_SERVICE_URL}/strategy`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ profile }),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Strategy failed: ${res.status}`);
+  try {
+    const res = await fetch(`${AI_SERVICE_URL}/strategy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile }),
+    });
+    if (!res.ok) throw new Error(`Strategy failed: ${res.status}`);
+    return res.json();
+  } catch {
+    // AI service unreachable (e.g. demo mode on Vercel without backend) — use mock insights
+    return getMockInsights();
   }
-  return res.json();
 }
 
 /** Send chat message (always calls AI service when not in mock). */
@@ -99,14 +101,19 @@ export async function sendChat(
       session_id: sessionId ?? 'mock-session',
     };
   }
-  const res = await fetch(`${AI_SERVICE_URL}/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, session_id: sessionId || null, profile }),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Chat failed: ${res.status}`);
+  try {
+    const res = await fetch(`${AI_SERVICE_URL}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, session_id: sessionId || null, profile }),
+    });
+    if (!res.ok) throw new Error(`Chat failed: ${res.status}`);
+    return res.json();
+  } catch {
+    return {
+      message: "The AI advisor isn't connected in demo mode. In the live version, you'd get a personalized response here based on your full financial profile.",
+      sources: [],
+      session_id: sessionId ?? 'demo-session',
+    };
   }
-  return res.json();
 }

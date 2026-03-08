@@ -309,7 +309,7 @@ export function LandingPage() {
           {/* Steps */}
           <div className="space-y-12">
             {features.map((f) => (
-              <div key={f.num} className="flex gap-8 items-start group">
+              <div key={f.num} className="flex gap-8 items-stretch group">
                 {/* Big number */}
                 <span
                   className={`font-display font-black leading-none shrink-0 select-none ${
@@ -321,7 +321,7 @@ export function LandingPage() {
                 </span>
 
                 {/* Content + gold left border accent */}
-                <div className={`border-l-2 pl-8 pt-1 ${
+                <div className={`border-l-2 pl-8 flex flex-col justify-center ${
                   isLight ? 'border-gold-500/40' : 'border-gold-500/30'
                 }`}>
                   <h3
