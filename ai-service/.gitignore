@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.index
+app/kb/index/
+app/kb/processed/
+*.pkl
+.venv/
+venv/

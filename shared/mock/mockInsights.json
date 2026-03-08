@@ -1,0 +1,72 @@
+{
+  "insights": [
+    {
+      "recommendation": "Build a $1,000 starter emergency fund in a high-yield savings account before increasing investing.",
+      "principle": "Baby Step 1: a small emergency fund reduces the need to rely on credit when unexpected expenses hit.",
+      "behavioral_flags": ["no_emergency_fund"],
+      "sources": [
+        {
+          "title": "CFPB – Building emergency savings",
+          "url": "https://www.consumerfinance.gov/consumer-tools/savings/",
+          "preview": "Even small amounts saved regularly can help you cover unexpected costs.",
+          "relevance_score": 0.92,
+          "badge_type": "government"
+        },
+        {
+          "title": "FinSight KB – Baby Steps",
+          "url": "#finsight-kb",
+          "preview": "Emergency fund before aggressive debt payoff or investing.",
+          "relevance_score": 0.88,
+          "badge_type": "finsight-kb"
+        }
+      ]
+    },
+    {
+      "recommendation": "Track spending for 2 weeks to close the gap between what you think you spend and what you actually spend.",
+      "principle": "The perception vs. reality gap is one of the biggest obstacles to student financial progress.",
+      "behavioral_flags": ["spending_gap"],
+      "sources": [
+        {
+          "title": "FinSight KB – Behavioral finance",
+          "url": "#finsight-kb",
+          "preview": "What people think they spend vs. what they actually spend.",
+          "relevance_score": 0.9,
+          "badge_type": "finsight-kb"
+        }
+      ]
+    },
+    {
+      "recommendation": "Once you have a small emergency fund and consistent savings, consider a low-cost index fund like VOO or a target-date fund.",
+      "principle": "Bogle-style indexing: diversified, low-cost funds are appropriate for beginners.",
+      "behavioral_flags": [],
+      "sources": [
+        {
+          "title": "SEC investor.gov – Getting started",
+          "url": "https://www.investor.gov/introduction-investing",
+          "preview": "Basics of investing for beginners, including index funds.",
+          "relevance_score": 0.85,
+          "badge_type": "government"
+        }
+      ]
+    }
+  ],
+  "action_plan": [
+    {
+      "title": "Open a high-yield savings account",
+      "description": "Set up automatic transfers of $50–100 per paycheck into a dedicated emergency fund.",
+      "time_label": "Month 1"
+    },
+    {
+      "title": "Track every dollar for 2 weeks",
+      "description": "Use a simple app or spreadsheet to log all spending and compare to your stated budget.",
+      "time_label": "Month 2"
+    },
+    {
+      "title": "Reassess readiness and next steps",
+      "description": "Review your savings rate and emergency fund; if both are on track, consider opening a brokerage and buying one index fund.",
+      "time_label": "Month 3"
+    }
+  ],
+  "narrative": "You're in a solid place to start building habits that will set you up long-term. Your spending gap and lack of an emergency fund are the two things to tackle first — both are very common and fixable. Once you have a small safety net and a clearer picture of where your money goes, you'll be in a much better position to start investing with confidence.",
+  "disclaimer": "FinSight AI provides educational insights and planning support — not personalized financial advice. For major financial decisions, consult a certified financial planner."
+}

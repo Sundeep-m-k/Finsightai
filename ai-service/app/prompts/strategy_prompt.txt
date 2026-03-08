@@ -1,0 +1,43 @@
+Use the following context to produce a personalized financial strategy for this student.
+
+## Macro context (current)
+{MACRO_CONTEXT}
+
+## Student profile (summary)
+{PROFILE_SUMMARY}
+
+## Retrieved source material (use these to ground your response)
+{RAG_CHUNKS}
+
+## Your task
+Produce a JSON object only (no markdown, no code fence). Use this exact structure:
+
+{{
+  "insights": [
+    {{
+      "recommendation": "one clear recommendation",
+      "principle": "the financial principle behind it",
+      "behavioral_flags": ["list of flags from the profile that triggered this"],
+      "sources": [
+        {{
+          "title": "exact source_title from the chunk you used",
+          "url": "exact source_url from that chunk",
+          "preview": "1-2 sentence preview from the chunk (max 200 chars)",
+          "relevance_score": 0.0 to 1.0 (use the score from the chunk),
+          "badge_type": "government" | "academic" | "finsight-kb"
+        }}
+      ]
+    }}
+  ],
+  "action_plan": [
+    {{
+      "title": "short step title",
+      "description": "what to do",
+      "time_label": "Month 1" or "Month 2" or "Month 3"
+    }}
+  ],
+  "narrative": "One short paragraph in a warm, mentor-like tone summarizing the situation and encouragement.",
+  "disclaimer": "FinSight AI provides educational insights and planning support — not personalized financial advice. For major financial decisions, consult a certified financial planner."
+}}
+
+Give 3-4 insights. Each insight must reference at least one source from the retrieved chunks. Action plan must have exactly 3 steps (90-day plan). Output only the JSON object.

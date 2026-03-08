@@ -1,0 +1,17 @@
+# Person 3 - AI service
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Claude
+anthropic>=0.18.0
+httpx>=0.26.0
+
+# RAG
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+numpy>=1.24.0
+
+# Market (Finnhub)
+python-dotenv>=1.0.0

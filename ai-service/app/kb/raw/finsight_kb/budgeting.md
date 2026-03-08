@@ -1,0 +1,9 @@
+# Budgeting and the 50/30/20 rule
+
+A budget is a plan for your money: income in, expenses out. Without a plan, it is easy to run out before the month ends or to wonder where the money went. The 50/30/20 rule is a simple guideline: put 50% of after-tax income toward needs (rent, utilities, food, insurance, minimum debt payments), 30% toward wants (dining out, entertainment, subscriptions), and 20% toward savings and extra debt payoff. For students, income and expenses can be irregular; use an average month or a conservative estimate of income and adjust the percentages to fit. The key is to decide in advance how much goes to savings and debt so that spending does not crowd them out.
+
+Track before you optimize. Many people set a budget without knowing what they actually spend. That leads to unrealistic targets and quick burnout. Use two weeks to a month of real spending data—from bank and card statements or a spending log—to see your true totals by category. Then set limits that are slightly tighter than current spending but achievable. Small, consistent cuts (e.g. one fewer takeout night per week) work better than drastic restrictions you cannot sustain.
+
+Pay yourself first. As soon as income arrives, move your savings and debt-payoff amount to a separate account or set up automatic transfers. What remains is what you can spend. That way you never rely on "whatever is left" for savings, because there often is nothing left. Even $25 or $50 per paycheck is a start; increase it when you get a raise or cut a recurring expense.
+
+Review and adjust. A budget is not set in stone. Check in monthly: are you over in some categories and under in others? Shift next month's plan accordingly. Life changes—new job, rent increase, tuition—so your budget should change too. The goal is awareness and control, not perfection.
