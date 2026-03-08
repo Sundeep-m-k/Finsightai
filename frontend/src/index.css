@@ -2,52 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Base font ─────────────────────────────────────────────────────────────── */
+
 body {
+  font-family: 'DM Sans', system-ui, sans-serif;
   @apply bg-slate-950 text-slate-100 antialiased;
 }
+
+.dark body {
+  @apply bg-slate-950 text-slate-100;
+}
+
+/* ─── Animations ────────────────────────────────────────────────────────────── */
 
 @keyframes slideInRight {
   from { opacity: 0; transform: translateX(48px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-
 @keyframes slideInLeft {
   from { opacity: 0; transform: translateX(-48px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.4), 0 0 60px rgba(99,102,241,0.1); }
   50%       { box-shadow: 0 0 50px rgba(99,102,241,0.7), 0 0 100px rgba(99,102,241,0.25); }
 }
-
-@keyframes spinSlow {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
 @keyframes rowReveal {
   from { opacity: 0; transform: translateX(-24px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-
 @keyframes barFill {
   from { width: 0%; }
 }
-
 @keyframes numberPop {
   from { opacity: 0; transform: scale(0.8); }
   to   { opacity: 1; transform: scale(1); }
+}
+@keyframes toggleSlide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(1.75rem); }
 }
 
 .animate-slide-right { animation: slideInRight 0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -55,11 +56,62 @@ body {
 .animate-fade-up     { animation: fadeInUp     0.45s cubic-bezier(0.22,1,0.36,1) forwards; }
 .animate-fade-in     { animation: fadeIn       0.4s  ease forwards; }
 .animate-pulse-glow  { animation: pulseGlow    2.5s  ease-in-out infinite; }
-.animate-spin-slow   { animation: spinSlow     3s    linear infinite; }
 .animate-row-reveal  { animation: rowReveal    0.5s  cubic-bezier(0.22,1,0.36,1) both; }
 .animate-bar-fill    { animation: barFill      1.4s  cubic-bezier(0.22,1,0.36,1) forwards; }
 .animate-number-pop  { animation: numberPop    0.4s  cubic-bezier(0.22,1,0.36,1) both; }
 
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+
 ::-webkit-scrollbar       { width: 5px; }
 ::-webkit-scrollbar-track { background: #0f172a; }
 ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+html:not(.dark) ::-webkit-scrollbar-track { background: #f0ebe3; }
+html:not(.dark) ::-webkit-scrollbar-thumb { background: #c0b5a8; }
+
+/* ─── Light mode overrides for pages not fully rewritten ─────────────────────
+   Covers: OnboardingPage, UploadPage, GapRevealPage
+   Uses higher specificity (html:not(.dark) prefix) to beat Tailwind's
+   generated classes without needing !important on most rules.
+──────────────────────────────────────────────────────────────────────────────── */
+
+/* Backgrounds */
+html:not(.dark) body                    { background-color: #faf7f2; color: #1a1713; }
+html:not(.dark) .bg-slate-950          { background-color: #faf7f2; }
+html:not(.dark) .bg-slate-900          { background-color: #ffffff; }
+html:not(.dark) .bg-slate-800          { background-color: #e8e0d4; }
+
+/* Semi-transparent backgrounds — needs !important to override rgb() alpha */
+html:not(.dark) .bg-slate-900\/80      { background-color: rgba(255,255,255,0.85) !important; }
+html:not(.dark) .bg-slate-900\/60      { background-color: rgba(255,255,255,0.7)  !important; }
+html:not(.dark) .bg-slate-900\/50      { background-color: rgba(255,255,255,0.6)  !important; }
+html:not(.dark) .bg-slate-950\/90      { background-color: rgba(250,247,242,0.92) !important; }
+
+/* Text */
+html:not(.dark) .text-white            { color: #1a1713; }
+html:not(.dark) .text-slate-100        { color: #2a2320; }
+html:not(.dark) .text-slate-200        { color: #3a3330; }
+html:not(.dark) .text-slate-300        { color: #4a4340; }
+html:not(.dark) .text-slate-400        { color: #6b6459; }
+html:not(.dark) .text-slate-500        { color: #7a7368; }
+html:not(.dark) .text-slate-600        { color: #8a8278; }
+html:not(.dark) .text-slate-700        { color: #a09488; }
+
+/* Borders */
+html:not(.dark) .border-slate-800      { border-color: #e2d9cc; }
+html:not(.dark) .border-slate-700      { border-color: #d4c9bc; }
+html:not(.dark) .border-slate-600      { border-color: #c0b5a8; }
+
+/* Inputs */
+html:not(.dark) input.bg-slate-900     { background-color: #ffffff; color: #1a1713; }
+html:not(.dark) input                  { color: #1a1713; }
+
+/* Indigo accent — keep but soften for light mode */
+html:not(.dark) .bg-indigo-500\/15    { background-color: rgba(99,102,241,0.08) !important; }
+html:not(.dark) .bg-indigo-500\/10    { background-color: rgba(99,102,241,0.06) !important; }
+html:not(.dark) .bg-red-500\/5        { background-color: rgba(239,68,68,0.04)  !important; }
+html:not(.dark) .bg-indigo-500\/5     { background-color: rgba(99,102,241,0.04) !important; }
+
+/* GapRevealPage fixed background blobs — hide in light mode */
+html:not(.dark) .bg-red-500\/5        { display: none; }
+html:not(.dark) .bg-indigo-500\/5     { display: none; }

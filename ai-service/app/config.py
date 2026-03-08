@@ -7,9 +7,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    # Gemini (free tier)
-    gemini_api_key: str = ""
-    gemini_model: str = "gemini-1.5-flash"
+    # Binghamton OpenWebUI (Ollama-backed)
+    binghamton_api_key: str = ""
+    binghamton_model: str = "llama3.2:latest"
+    binghamton_url: str = "https://chat.binghamton.edu/api/chat/completions"
 
     # Finnhub (optional)
     finnhub_api_key: str = ""

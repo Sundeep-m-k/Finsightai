@@ -25,10 +25,14 @@ class QuestionnaireSummary(BaseModel):
     income_monthly: float | None = None
     expenses_monthly: float | None = None
     loan_balance: float | None = None
+    loan_rate: float | None = None
     credit_card_balance: float | None = None
+    cc_limit: float | None = None
     primary_goal: PrimaryGoal
     risk_tolerance: RiskTolerance | None = None
     months_until_graduation: int | None = None
+    income_type: str | None = None
+    time_horizon: str | None = None
 
 
 class BehavioralProfile(BaseModel):
@@ -39,12 +43,23 @@ class BehavioralProfile(BaseModel):
     expense_breakdown: list[ExpenseCategory] | None = None
 
 
+class GapItem(BaseModel):
+    category: str
+    stated: float
+    actual: float
+    delta_pct: float
+    status: str  # "red" | "amber" | "green"
+
+
 class UserProfile(BaseModel):
     questionnaire: QuestionnaireSummary
     behavioral: BehavioralProfile
     saving_readiness_score: float = Field(ge=0, le=10)
     investment_readiness_score: float = Field(ge=0, le=10)
     analysis_period_months: int | None = None
+    gap_analysis: list[GapItem] | None = None
+    readiness_narrative: str | None = None
+    investment_narrative: str | None = None
 
 
 class ChatRequest(BaseModel):

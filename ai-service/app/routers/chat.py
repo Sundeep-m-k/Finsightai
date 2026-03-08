@@ -56,6 +56,7 @@ def _fetch_live_quotes(symbols: list[str]) -> tuple[str, list[Source]]:
 
 # In-memory: session_id -> { "profile": UserProfile, "messages": [{"role","content"}] }
 _sessions: dict[str, dict[str, Any]] = {}
+_MAX_SESSIONS = 500
 
 from pathlib import Path as _Path
 _PROMPT_DIR = _Path(__file__).resolve().parent.parent / "prompts"
@@ -66,6 +67,8 @@ _CHAT_PROMPT = (_PROMPT_DIR / "chat_prompt.txt").read_text(encoding="utf-8")
 def _get_or_create_session(session_id: str | None, profile: UserProfile) -> str:
     sid = session_id or str(uuid.uuid4())
     if sid not in _sessions:
+        if len(_sessions) >= _MAX_SESSIONS:
+            _sessions.pop(next(iter(_sessions)))
         _sessions[sid] = {"profile": profile, "messages": []}
     else:
         _sessions[sid]["profile"] = profile  # allow updating profile

@@ -7,7 +7,7 @@ You own **finsightai.com**. To run the app live you need to host three pieces an
 ## Quick order (do in this sequence)
 
 1. **Deploy Backend (Render)** → copy its URL (e.g. `https://finsight-backend.onrender.com`).
-2. **Deploy AI service (Render)** → add `ANTHROPIC_API_KEY`, copy its URL (e.g. `https://finsight-ai-service.onrender.com`).
+2. **Deploy AI service (Render)** → add `GEMINI_API_KEY`, copy its URL (e.g. `https://finsight-ai-service.onrender.com`).
 3. **Deploy Frontend (Vercel)** → set env vars `VITE_BACKEND_URL` and `VITE_AI_SERVICE_URL` to the two URLs above, then deploy.
 4. **Add domain in Vercel** → add `www.finsightai.com` (and optionally `finsightai.com`), then in your domain registrar add the CNAME/A record Vercel shows.
 5. **Redeploy frontend** after setting env vars so the build picks them up.
@@ -49,7 +49,7 @@ The frontend is the only part users hit in the browser. It calls the backend and
 2. **Root Directory:** `backend`
 3. **Runtime:** Python 3
 4. **Build Command:** `pip install -r requirements.txt`
-5. **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+5. **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
 6. **Environment:** Add `PORT` if Render doesn’t set it (Render usually sets it automatically).
 7. Deploy. Note the URL (e.g. `https://finsight-backend.onrender.com`).
 
@@ -62,8 +62,8 @@ The frontend is the only part users hit in the browser. It calls the backend and
    (so the RAG index is built at deploy time). If the build times out (e.g. on free tier), run `python -m app.rag.ingest` once locally, commit `ai-service/app/kb/index/` to the repo, and remove the `&& python -m app.rag.ingest` part so deploy only runs `pip install`.
 4. **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 5. **Environment variables:**
-   - `ANTHROPIC_API_KEY` = your Claude API key (required)
-   - `FINNHUB_API_KEY` = optional, for live quotes
+   - `GEMINI_API_KEY` = your Google Gemini API key (required)
+   - `FINNHUB_API_KEY` = optional, enables live ETF quotes in chat (VOO, QQQ, etc.)
    - Render sets `PORT` automatically.
 6. Deploy. Note the URL (e.g. `https://finsight-ai-service.onrender.com`).
 
@@ -129,7 +129,7 @@ If you prefer one machine (e.g. DigitalOcean, Linode, EC2):
 ## 5. Checklist before go-live
 
 - [ ] Backend and AI service deployed and returning 200 on `/health`.
-- [ ] AI service has `ANTHROPIC_API_KEY` set; RAG ingest ran at build time.
+- [ ] AI service has `GEMINI_API_KEY` set; RAG ingest ran at build time.
 - [ ] Frontend env: `VITE_BACKEND_URL` and `VITE_AI_SERVICE_URL` point to those deployed URLs.
 - [ ] Domain: CNAME (or A) for www (and root) → frontend host; SSL is usually automatic (Vercel/Netlify/Render provide HTTPS).
 - [ ] Test full flow: questionnaire → upload/sample → dashboard → chat on https://www.finsightai.com.

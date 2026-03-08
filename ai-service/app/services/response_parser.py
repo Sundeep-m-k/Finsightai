@@ -11,6 +11,8 @@ from app.schemas.sources import Source
 
 
 def parse_strategy_response(raw: dict) -> InsightResponse:
+    if not isinstance(raw, dict):
+        raw = {}
     insights = []
     for i in raw.get("insights") or []:
         sources = [

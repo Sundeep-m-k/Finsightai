@@ -1,21 +1,25 @@
 import { useState, useRef, useEffect } from 'react';
 import { useProfile } from '../context/ProfileContext';
+import { useTheme } from '../context/ThemeContext';
 import { sendChat } from '../lib/api';
 import { CitationPills } from '../components/chat/CitationPills';
 import type { Source } from 'shared/schemas/insight';
-import { Send, Sparkles } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 type Message = { role: 'user' | 'assistant'; content: string; sources?: Source[] };
 
 const STARTER_QUESTIONS = [
   'What should I focus on first?',
-  'What is VOO trading at?',
   'How do I build an emergency fund?',
   'Should I pay debt or invest first?',
+  'What does my savings rate mean?',
 ];
 
 export function ChatPage() {
   const { profile } = useProfile();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -62,19 +66,22 @@ export function ChatPage() {
       <div className="flex-1 overflow-y-auto space-y-4 pb-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/30">
-              <Sparkles size={24} className="text-white" />
-            </div>
-            <h2 className="text-xl font-bold text-white mb-2">Ask your AI mentor</h2>
-            <p className="text-slate-500 text-sm max-w-xs mb-8">
-              Cited answers from CFPB, OpenStax, and investor.gov — not generic advice.
+            <p className={`font-display font-black text-3xl mb-2 ${isLight ? 'text-stone-900' : 'text-white'}`}>
+              Ask your mentor.
+            </p>
+            <p className={`text-sm max-w-xs mb-8 ${isLight ? 'text-stone-500' : 'text-slate-500'}`}>
+              Answers cited from CFPB, OpenStax, and investor.gov — not generic advice.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-md">
               {STARTER_QUESTIONS.map((q) => (
                 <button
                   key={q}
                   onClick={() => handleSend(q)}
-                  className="text-left px-4 py-3 rounded-xl border border-slate-800 bg-slate-900/60 text-slate-300 text-sm hover:border-slate-600 hover:bg-slate-900 transition-all"
+                  className={`text-left px-4 py-3 rounded-xl border text-sm transition-all ${
+                    isLight
+                      ? 'border-cream-300 bg-white text-stone-700 hover:border-stone-300 hover:bg-cream-50'
+                      : 'border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-600 hover:bg-slate-900'
+                  }`}
                 >
                   {q}
                 </button>
@@ -91,8 +98,12 @@ export function ChatPage() {
             <div
               className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                 m.role === 'user'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-900 border border-slate-800 text-slate-200'
+                  ? isLight
+                    ? 'bg-stone-900 text-white'
+                    : 'bg-slate-700 text-white'
+                  : isLight
+                    ? 'bg-white border border-cream-300 text-stone-700'
+                    : 'bg-slate-900 border border-slate-800 text-slate-200'
               }`}
             >
               <p className="whitespace-pre-wrap text-sm leading-relaxed">{m.content}</p>
@@ -105,17 +116,23 @@ export function ChatPage() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="rounded-2xl bg-slate-900 border border-slate-800 px-4 py-3 flex items-center gap-2">
+            <div className={`rounded-2xl border px-4 py-3 flex items-center gap-2 ${
+              isLight ? 'bg-white border-cream-300' : 'bg-slate-900 border-slate-800'
+            }`}>
               <div className="flex gap-1">
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce"
+                    className={`w-1.5 h-1.5 rounded-full animate-bounce ${
+                      isLight ? 'bg-stone-400' : 'bg-slate-500'
+                    }`}
                     style={{ animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
               </div>
-              <span className="text-slate-500 text-sm">Thinking…</span>
+              <span className={`text-sm ${isLight ? 'text-stone-400' : 'text-slate-500'}`}>
+                Thinking…
+              </span>
             </div>
           </div>
         )}
@@ -123,7 +140,7 @@ export function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-slate-800 pt-4">
+      <div className={`border-t pt-4 ${isLight ? 'border-cream-300' : 'border-slate-800'}`}>
         <form
           onSubmit={(e) => { e.preventDefault(); handleSend(); }}
           className="flex gap-2"
@@ -134,13 +151,21 @@ export function ChatPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about your finances…"
-            className="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-white placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm transition-colors"
+            className={`flex-1 rounded-xl border px-4 py-3 text-sm focus:outline-none transition-colors ${
+              isLight
+                ? 'border-cream-300 bg-white text-stone-900 placeholder:text-stone-400 focus:border-stone-400'
+                : 'border-slate-700 bg-slate-900 text-white placeholder:text-slate-600 focus:border-slate-500'
+            }`}
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
+            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${
+              isLight
+                ? 'bg-stone-900 text-white hover:bg-stone-700'
+                : 'bg-slate-700 text-white hover:bg-slate-600'
+            }`}
           >
             <Send size={16} />
           </button>

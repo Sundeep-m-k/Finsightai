@@ -22,6 +22,7 @@ _STRATEGY_PROMPT: str = (_PROMPTS_DIR / "strategy_prompt.txt").read_text(encodin
 # In-memory cache: profile_hash -> InsightResponse
 # Prevents repeated Gemini calls for the same profile (e.g. user refreshes dashboard)
 _strategy_cache: dict[str, InsightResponse] = {}
+_MAX_CACHE_SIZE = 200
 
 
 # Map profile flags and goal to RAG topics for filtered retrieval
@@ -90,15 +91,22 @@ def run(profile: UserProfile) -> InsightResponse:
 
     macro = get_macro_context()
     profile_summary = _profile_summary(profile)
-    rag_block = _format_chunks_for_prompt(chunks)
+    rag_block = (
+        _format_chunks_for_prompt(chunks)
+        if chunks
+        else "(No knowledge base chunks retrieved — respond based on profile data and general financial principles.)"
+    )
 
-    user = _STRATEGY_PROMPT.format(
-        MACRO_CONTEXT=macro,
-        PROFILE_SUMMARY=profile_summary,
-        RAG_CHUNKS=rag_block,
+    user = (
+        _STRATEGY_PROMPT
+        .replace("{MACRO_CONTEXT}", macro)
+        .replace("{PROFILE_SUMMARY}", profile_summary)
+        .replace("{RAG_CHUNKS}", rag_block)
     )
 
     raw = complete_json(system=_SYSTEM_PROMPT, user=user)
     result = parse_strategy_response(raw)
+    if len(_strategy_cache) >= _MAX_CACHE_SIZE:
+        _strategy_cache.pop(next(iter(_strategy_cache)))
     _strategy_cache[cache_key] = result
     return result
