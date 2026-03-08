@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+import os
 from uuid import uuid4
 from typing import Optional
 
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from dotenv import load_dotenv
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+# Load environment variables from .env file
+load_dotenv()
+
+from live_stocks import latest_quotes, subscribers, start_stream_in_background, get_connection_status
 from models import (
     BehavioralProfile,
     CategoryAggregate,
@@ -27,6 +33,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+def startup_event():
+    """Start Finnhub WebSocket stream on app startup."""
+    start_stream_in_background()
 
 # ─── Frontend-compatible Pydantic models ───────────────────────────────────────
 
@@ -271,6 +283,7 @@ async def _process_upload(session_id: str, file_bytes: bytes, filename: str) -> 
         update_session(session_id, "behavioral", behavioral.model_dump())
         update_session(session_id, "transactions", parsed["transactions"])
         update_session(session_id, "readiness", readiness.model_dump())
+        update_session(session_id, "audit", parsed.get("audit", {}))
 
         return {
             "session_id": session_id,
@@ -340,3 +353,176 @@ def score_session(session_id: str) -> ReadinessReport:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed to compute score: {exc}") from exc
+
+
+# ── Debug endpoints (backend validation only) ──────────────────────────────────
+
+@app.get("/debug/upload-preview/{session_id}")
+def debug_upload_preview(session_id: str) -> dict:
+    """Inspect what was parsed from uploaded file."""
+    session = get_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found.")
+    if "transactions" not in session:
+        raise HTTPException(status_code=400, detail="No transactions parsed yet.")
+    
+    audit = session.get("audit", {})
+    transactions = session.get("transactions", [])
+    
+    # Return first 20 transactions + audit summary
+    return {
+        "sheets_info": {
+            "total_scanned": audit.get("total_sheets_scanned", 0),
+            "accepted": audit.get("sheets_accepted", []),
+            "skipped": audit.get("sheets_skipped", []),
+        },
+        "parsing_quality": {
+            "rows_extracted": audit.get("rows_extracted", 0),
+            "rows_dropped": audit.get("rows_dropped", 0),
+            "warnings": audit.get("parse_warnings", []),
+        },
+        "sample_transactions": transactions[:20],
+        "transaction_count": len(transactions),
+    }
+
+
+@app.get("/debug/monthly-summary/{session_id}")
+def debug_monthly_summary(session_id: str) -> dict:
+    """Return month-wise income, expenses, and categories."""
+    session = get_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found.")
+    if "transactions" not in session:
+        raise HTTPException(status_code=400, detail="No transactions parsed yet.")
+    
+    transactions = session.get("transactions", [])
+    behavioral = session.get("behavioral", {})
+    audit = session.get("audit", {})
+    
+    # Group by month
+    monthly_summary: dict[str, dict] = {}
+    for tx in transactions:
+        month = tx.get("month", "unknown")
+        if month not in monthly_summary:
+            monthly_summary[month] = {
+                "income": 0.0,
+                "expenses": 0.0,
+                "categories": {},
+            }
+        
+        amount = tx.get("amount", 0)
+        category = tx.get("category", "other")
+        
+        if category == "income":
+            monthly_summary[month]["income"] += abs(amount)
+        else:
+            monthly_summary[month]["expenses"] += abs(amount)
+        
+        if category not in monthly_summary[month]["categories"]:
+            monthly_summary[month]["categories"][category] = 0.0
+        monthly_summary[month]["categories"][category] += abs(amount)
+    
+    return {
+        "detected_months": audit.get("detected_months", []),
+        "monthly_totals": monthly_summary,
+        "monthly_count": len(monthly_summary),
+        "average_monthly_income": (
+            behavioral.get("questionnaire", {}).get("income_monthly", 0)
+            if isinstance(behavioral, dict)
+            else 0
+        ),
+        "average_monthly_expenses": behavioral.get("avg_monthly_spending", 0),
+    }
+
+
+@app.get("/debug/parser-audit/{session_id}")
+def debug_parser_audit(session_id: str) -> dict:
+    """Return detailed parser audit trail."""
+    session = get_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found.")
+    if "audit" not in session:
+        raise HTTPException(status_code=400, detail="No parsing audit available.")
+    
+    audit = session.get("audit", {})
+    transactions = session.get("transactions", [])
+    
+    # Calculate some quality metrics
+    quality_score = 100
+    warnings = audit.get("parse_warnings", [])
+    
+    if audit.get("rows_dropped", 0) > audit.get("rows_extracted", 0) * 0.2:
+        quality_score -= 10
+    
+    if any("inference" in w.lower() for w in warnings):
+        quality_score -= 5
+    
+    if audit.get("sheets_skipped"):
+        quality_score -= 5
+    
+    return {
+        "parser_audit": audit,
+        "quality_score": max(0, quality_score),
+        "quality_notes": [
+            "✓ Date parsing successful" if not any("inference" in w for w in warnings) else "⚠ Date parsing used inference",
+            f"✓ Extracted {audit.get('rows_extracted', 0)} valid rows" if audit.get('rows_extracted', 0) > 0 else "✗ No rows extracted",
+            f"✓ No rows dropped" if audit.get('rows_dropped', 0) == 0 else f"⚠ Dropped {audit.get('rows_dropped', 0)} rows",
+            f"✓ All sheets accepted" if not audit.get('sheets_skipped') else f"⚠ Skipped {len(audit.get('sheets_skipped', []))} sheets",
+        ],
+        "sheets_info": {
+            "total_scanned": audit.get("total_sheets_scanned", 0),
+            "accepted": audit.get("sheets_accepted", []),
+            "skipped": audit.get("sheets_skipped", []),
+        },
+        "transaction_sample": transactions[:5] if transactions else [],
+    }
+
+
+# ── Live Stock Market Data ──────────────────────────────────────────────────────
+
+@app.get("/live/watchlist")
+def get_watchlist_snapshot() -> dict:
+    """
+    GET live stock watchlist snapshot.
+    Returns latest quotes for VTI, VOO, SPY.
+    Can be called without requiring authentication.
+    Watchlist always available—not gated behind readiness.
+    """
+    return {
+        "quotes": latest_quotes,
+        "symbols": ["VTI", "VOO", "SPY"],
+        "status": "live" if latest_quotes else ("connected" if get_connection_status() else "streaming_disconnected"),
+    }
+
+
+@app.websocket("/ws/live-stocks")
+async def websocket_live_stocks(websocket: WebSocket):
+    """
+    WebSocket endpoint for live stock price updates.
+    Frontend subscribes once; receives broadcast of all quote updates.
+    """
+    await websocket.accept()
+
+    async def send_json(payload: dict):
+        """Send JSON to this WebSocket client."""
+        try:
+            await websocket.send_json(payload)
+        except Exception:
+            pass
+
+    # Add this send function to subscribers
+    subscribers.add(send_json)
+
+    try:
+        # Send initial snapshot on connect
+        await websocket.send_json({
+            "type": "live_quotes",
+            "quotes": latest_quotes,
+        })
+        # Keep connection open; messages will be broadcast by live_stocks module
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        pass
+    finally:
+        subscribers.discard(send_json)

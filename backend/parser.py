@@ -2,10 +2,23 @@ from __future__ import annotations
 
 from io import BytesIO
 from typing import Any
+from dataclasses import dataclass
 
 import pandas as pd
 
 from models import CategoryAggregate
+
+
+@dataclass
+class ParseAudit:
+    """Track detailed parsing information for validation."""
+    total_sheets_scanned: int
+    sheets_accepted: list[str]
+    sheets_skipped: list[str]
+    rows_extracted: int
+    rows_dropped: int
+    parse_warnings: list[str]
+    detected_months: list[str]
 
 
 CATEGORY_RULES: dict[str, list[str]] = {
@@ -229,6 +242,41 @@ def _normalize_amount_series(series: pd.Series) -> pd.Series:
     )
 
 
+def _parse_dates_robust(series: pd.Series, audit: ParseAudit | None = None) -> pd.Series:
+    """Parse dates format-first, then fallback to inference."""
+    # Try common formats first
+    formats_to_try = [
+        "%m/%d/%Y",    # US format: 01/15/2024
+        "%Y-%m-%d",    # ISO format: 2024-01-15
+        "%d/%m/%Y",    # EU format: 15/01/2024
+        "%m-%d-%Y",    # Alt US: 01-15-2024
+        "%d-%m-%Y",    # Alt EU: 15-01-2024
+        "%B %d, %Y",   # Long: January 15, 2024
+        "%b %d, %Y",   # Short: Jan 15, 2024
+    ]
+    
+    for fmt in formats_to_try:
+        try:
+            result = pd.to_datetime(series, format=fmt, errors="coerce")
+            if not result.isna().all():
+                success_rate = (~result.isna()).sum() / len(result)
+                if success_rate > 0.95:  # At least 95% matched this format
+                    if audit:
+                        audit.parse_warnings.append(
+                            f"Successfully parsed dates using format: {fmt}"
+                        )
+                    return result
+        except Exception:
+            pass
+    
+    # Fallback to dateutil
+    if audit:
+        audit.parse_warnings.append(
+            "Date format not recognized; using dateutil inference"
+        )
+    return pd.to_datetime(series, errors="coerce", dayfirst=True)
+
+
 def _normalize_category(raw_category: Any, description: str, amount: float) -> str:
     if pd.notna(raw_category):
         category = _clean_label(raw_category)
@@ -238,7 +286,7 @@ def _normalize_category(raw_category: Any, description: str, amount: float) -> s
     return classify_transaction(description=description, amount=amount)
 
 
-def _standardize_dataframe(df: pd.DataFrame, source_type: str, sheet_name: str | None = None) -> pd.DataFrame:
+def _standardize_dataframe(df: pd.DataFrame, source_type: str, sheet_name: str | None = None, audit: ParseAudit | None = None) -> pd.DataFrame:
     df = df.copy()
     df = _normalize_columns(df)
 
@@ -252,7 +300,7 @@ def _standardize_dataframe(df: pd.DataFrame, source_type: str, sheet_name: str |
         credit = _normalize_amount_series(df["credit"]) if "credit" in df.columns else pd.Series([0.0] * len(df))
         df["amount"] = credit.fillna(0) - debit.fillna(0)
 
-    df["date"] = pd.to_datetime(df["date"], errors="coerce", dayfirst=True)
+    df["date"] = _parse_dates_robust(df["date"], audit=audit)
     df["description"] = df["description"].fillna("").astype(str).str.strip()
 
     if "funding_source" not in df.columns:
@@ -280,41 +328,47 @@ def _standardize_dataframe(df: pd.DataFrame, source_type: str, sheet_name: str |
     df["sheet_name"] = sheet_name
     df["month"] = df["date"].dt.to_period("M").astype(str)
 
+    rows_before = len(df)
     df = df.dropna(subset=["date", "amount"]).copy()
     df = df[df["date"].notna()].copy()
+    rows_dropped = rows_before - len(df)
+    
+    if audit:
+        audit.rows_dropped += rows_dropped
+
     df = df[["date", "description", "amount", "category", "source_type", "month", "funding_source", "sheet_name"]]
     df = df.sort_values("date").reset_index(drop=True)
 
     if df.empty:
         raise ValueError("No valid transaction rows found after cleaning.")
 
+    if audit:
+        audit.rows_extracted += len(df)
+        audit.detected_months.extend(df["month"].dropna().unique().tolist())
+
     return df
 
 
-def parse_bank_export(file_bytes: bytes, filename: str) -> pd.DataFrame:
-    lower_name = filename.lower()
-
-    if lower_name.endswith(".csv"):
-        raw_df = _load_csv(file_bytes)
-    elif lower_name.endswith(".xlsx") or lower_name.endswith(".xls"):
-        sheet_map = pd.read_excel(BytesIO(file_bytes), sheet_name=None)
-        first_sheet = next(iter(sheet_map.values()))
-        raw_df = first_sheet
-    else:
-        raise ValueError("Unsupported file type. Please upload a CSV or Excel file.")
-
-    return _standardize_dataframe(raw_df, source_type="bank_export")
-
-
-def parse_monthly_workbook(file_bytes: bytes, filename: str) -> pd.DataFrame:
+def parse_monthly_workbook(file_bytes: bytes, filename: str) -> tuple[pd.DataFrame, ParseAudit]:
     if not (filename.lower().endswith(".xlsx") or filename.lower().endswith(".xls")):
         raise ValueError("Monthly workbook parser only supports Excel files.")
 
     sheets = _load_excel_sheets(file_bytes)
     parsed_frames: list[pd.DataFrame] = []
+    
+    audit = ParseAudit(
+        total_sheets_scanned=len(sheets),
+        sheets_accepted=[],
+        sheets_skipped=[],
+        rows_extracted=0,
+        rows_dropped=0,
+        parse_warnings=[],
+        detected_months=[],
+    )
 
     for sheet_name, raw_sheet in sheets.items():
         if not _is_monthly_sheet(sheet_name):
+            audit.sheets_skipped.append(f"{sheet_name} (not a monthly sheet)")
             continue
 
         try:
@@ -323,9 +377,12 @@ def parse_monthly_workbook(file_bytes: bytes, filename: str) -> pd.DataFrame:
                 table_df,
                 source_type="monthly_workbook",
                 sheet_name=sheet_name,
+                audit=audit,
             )
             parsed_frames.append(parsed)
-        except Exception:
+            audit.sheets_accepted.append(sheet_name)
+        except Exception as e:
+            audit.sheets_skipped.append(f"{sheet_name} ({str(e)[:50]})")
             continue
 
     if not parsed_frames:
@@ -333,10 +390,45 @@ def parse_monthly_workbook(file_bytes: bytes, filename: str) -> pd.DataFrame:
 
     combined = pd.concat(parsed_frames, ignore_index=True)
     combined = combined.sort_values("date").reset_index(drop=True)
-    return combined
+    
+    # Deduplicate detected_months
+    audit.detected_months = sorted(set(audit.detected_months))
+    
+    return combined, audit
+
+
+def parse_bank_export(file_bytes: bytes, filename: str) -> tuple[pd.DataFrame, ParseAudit]:
+    lower_name = filename.lower()
+    
+    audit = ParseAudit(
+        total_sheets_scanned=1,
+        sheets_accepted=[],
+        sheets_skipped=[],
+        rows_extracted=0,
+        rows_dropped=0,
+        parse_warnings=[],
+        detected_months=[],
+    )
+
+    if lower_name.endswith(".csv"):
+        raw_df = _load_csv(file_bytes)
+        audit.sheets_accepted.append("csv_file")
+    elif lower_name.endswith(".xlsx") or lower_name.endswith(".xls"):
+        sheet_map = pd.read_excel(BytesIO(file_bytes), sheet_name=None)
+        first_sheet = next(iter(sheet_map.values()))
+        raw_df = first_sheet
+        audit.sheets_accepted.append(next(iter(sheet_map.keys())))
+    else:
+        raise ValueError("Unsupported file type. Please upload a CSV or Excel file.")
+
+    parsed = _standardize_dataframe(raw_df, source_type="bank_export", audit=audit)
+    audit.detected_months = sorted(set(audit.detected_months))
+    
+    return parsed, audit
 
 
 def detect_file_format(file_bytes: bytes, filename: str) -> str:
+    """Detect if file is a monthly workbook or bank export."""
     lower_name = filename.lower()
 
     if lower_name.endswith(".csv"):
@@ -355,7 +447,7 @@ def detect_file_format(file_bytes: bytes, filename: str) -> str:
     raise ValueError("Unsupported file type. Please upload CSV or Excel.")
 
 
-def parse_transactions(file_bytes: bytes, filename: str) -> pd.DataFrame:
+def parse_transactions(file_bytes: bytes, filename: str) -> tuple[pd.DataFrame, ParseAudit]:
     file_format = detect_file_format(file_bytes, filename)
 
     if file_format == "monthly_workbook":
@@ -439,7 +531,7 @@ def build_category_aggregates(df: pd.DataFrame) -> list[CategoryAggregate]:
 
 
 def parse_and_aggregate(file_bytes: bytes, filename: str) -> dict[str, Any]:
-    df = parse_transactions(file_bytes, filename)
+    df, audit = parse_transactions(file_bytes, filename)
     aggregates = build_category_aggregates(df)
 
     return {
@@ -447,4 +539,13 @@ def parse_and_aggregate(file_bytes: bytes, filename: str) -> dict[str, Any]:
         "category_aggregates": [item.model_dump() for item in aggregates],
         "months_analyzed": int(df["month"].nunique()),
         "source_type": df["source_type"].iloc[0] if not df.empty else "unknown",
+        "audit": {
+            "total_sheets_scanned": audit.total_sheets_scanned,
+            "sheets_accepted": audit.sheets_accepted,
+            "sheets_skipped": audit.sheets_skipped,
+            "rows_extracted": audit.rows_extracted,
+            "rows_dropped": audit.rows_dropped,
+            "parse_warnings": audit.parse_warnings,
+            "detected_months": audit.detected_months,
+        },
     }

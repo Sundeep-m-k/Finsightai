@@ -13,5 +13,11 @@ sentence-transformers>=2.2.0
 faiss-cpu>=1.7.4
 numpy>=1.24.0
 
+# Web retrieval
+duckduckgo-search>=4.0.0
+beautifulsoup4>=4.12.0
+
 # Market (Finnhub)
 python-dotenv>=1.0.0
+
+websocket

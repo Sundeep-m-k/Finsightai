@@ -1,4 +1,4 @@
-Use the following context to produce a personalized financial strategy for this student.
+Use the following context to explain a precomputed financial plan for this student.
 
 ## Macro context (current)
 {MACRO_CONTEXT}
@@ -6,7 +6,10 @@ Use the following context to produce a personalized financial strategy for this 
 ## Student profile (summary)
 {PROFILE_SUMMARY}
 
-## Retrieved source material (use these to ground your response)
+## Deterministic plan outcomes (SOURCE OF TRUTH)
+{PLAN_OUTCOMES}
+
+## Retrieved source material (supporting rationale only)
 {RAG_CHUNKS}
 
 ## Your task
@@ -40,4 +43,16 @@ Produce a JSON object only (no markdown, no code fence). Use this exact structur
   "disclaimer": "FinSight AI provides educational insights and planning support — not personalized financial advice. For major financial decisions, consult a certified financial planner."
 }}
 
-Give 3-4 insights. Each insight must reference at least one source from the retrieved chunks. Action plan must have exactly 3 steps (90-day plan). Output only the JSON object.
+Hard rules:
+1) Use plan outcomes as the single source of truth for all numbers, amounts, timelines, readiness status, and priorities.
+2) Do NOT invent or change scores, amounts, ETFs, allocations, blockers, or milestones.
+3) RAG chunks are only for educational rationale and citations.
+4) If a value is missing in plan outcomes, avoid fabricating; explain qualitatively.
+5) Emergency fund targets are deterministic: use emergency_fund_1mo_target, emergency_fund_3mo_target, and starter_emergency_target EXACTLY. Do not calculate or invent different amounts.
+
+Content rules:
+- Give 3-4 insights.
+- Each insight must reference at least one source from retrieved chunks when available.
+- Keep action plan aligned with plan outcomes and exactly 3 steps (90-day plan).
+
+Output only the JSON object.
