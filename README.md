@@ -1,10 +1,10 @@
-# FinSight AI
+# FinScope AI
 
 > **A mentor, not a calculator.** AI-powered personal finance coaching for college students.
 
-FinSight AI reveals the gap between what you *think* you spend and what your bank *actually* shows — then delivers a personalized financial plan with readiness scores, a 90-day action timeline, live ETF market data, and a conversational AI coach backed by government and academic sources.
+FinScope AI reveals the gap between what you *think* you spend and what your bank *actually* shows — then delivers a personalized financial plan with readiness scores, a 90-day action timeline, live ETF market data, and a conversational AI coach backed by government and academic sources.
 
-**Live demo:** [finsightai.com](https://www.finsightai.com)
+**Live demo:** [fin-scope-ai.com](https://www.fin-scope-ai.com)
 
 ---
 
@@ -269,4 +269,4 @@ Finsightai/
 
 ## Disclaimer
 
-FinSight AI provides educational financial information only. It is not a licensed financial advisor. All content is sourced from CFPB, investor.gov, and OpenStax — not financial product recommendations.
+FinScope AI provides educational financial information only. It is not a licensed financial advisor. All content is sourced from CFPB, investor.gov, and OpenStax — not financial product recommendations.
