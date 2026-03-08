@@ -1,6 +1,8 @@
-"""Orchestrate: profile -> topics -> retrieve -> prompt -> Claude -> InsightResponse."""
+"""Orchestrate: profile -> topics -> retrieve -> prompt -> Gemini -> InsightResponse."""
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 
 from app.clients.llm_client import complete_json
@@ -10,6 +12,16 @@ from app.schemas.profile import UserProfile
 from app.schemas.sources import RetrievedChunk, TopicTag
 from app.services.macro_context import get_macro_context
 from app.services.response_parser import parse_strategy_response
+
+_PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
+
+# Cache prompt files at module level — read from disk once, not per request
+_SYSTEM_PROMPT: str = (_PROMPTS_DIR / "system_prompt.txt").read_text(encoding="utf-8")
+_STRATEGY_PROMPT: str = (_PROMPTS_DIR / "strategy_prompt.txt").read_text(encoding="utf-8")
+
+# In-memory cache: profile_hash -> InsightResponse
+# Prevents repeated Gemini calls for the same profile (e.g. user refreshes dashboard)
+_strategy_cache: dict[str, InsightResponse] = {}
 
 
 # Map profile flags and goal to RAG topics for filtered retrieval
@@ -57,7 +69,17 @@ def _format_chunks_for_prompt(chunks: list[RetrievedChunk]) -> str:
     return "\n\n---\n\n".join(lines)
 
 
+def _profile_hash(profile: UserProfile) -> str:
+    """Stable hash of the profile for caching."""
+    key = json.dumps(profile.model_dump(), sort_keys=True, default=str)
+    return hashlib.sha256(key.encode()).hexdigest()[:16]
+
+
 def run(profile: UserProfile) -> InsightResponse:
+    cache_key = _profile_hash(profile)
+    if cache_key in _strategy_cache:
+        return _strategy_cache[cache_key]
+
     topics = _topics_for_profile(profile)
     query = (
         "financial strategy for college student: "
@@ -66,20 +88,17 @@ def run(profile: UserProfile) -> InsightResponse:
     )
     chunks = retrieve(query=query, topic_filter=topics if topics else None)
 
-    system_path = Path(__file__).resolve().parent.parent / "prompts" / "system_prompt.txt"
-    strategy_path = Path(__file__).resolve().parent.parent / "prompts" / "strategy_prompt.txt"
-    system = system_path.read_text(encoding="utf-8")
-    strategy_tpl = strategy_path.read_text(encoding="utf-8")
-
     macro = get_macro_context()
     profile_summary = _profile_summary(profile)
     rag_block = _format_chunks_for_prompt(chunks)
 
-    user = strategy_tpl.format(
+    user = _STRATEGY_PROMPT.format(
         MACRO_CONTEXT=macro,
         PROFILE_SUMMARY=profile_summary,
         RAG_CHUNKS=rag_block,
     )
 
-    raw = complete_json(system=system, user=user)
-    return parse_strategy_response(raw)
+    raw = complete_json(system=_SYSTEM_PROMPT, user=user)
+    result = parse_strategy_response(raw)
+    _strategy_cache[cache_key] = result
+    return result

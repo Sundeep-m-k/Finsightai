@@ -10,10 +10,19 @@ from app.routers import chat, market, strategy
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Load FAISS index if present (optional; retriever can lazy-load)
+    # Pre-warm FAISS index + embedding model so first user request is fast
+    import asyncio
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, _warmup)
     yield
-    # Teardown if needed
-    pass
+
+
+def _warmup() -> None:
+    try:
+        from app.rag.retriever import warmup
+        warmup()
+    except Exception:
+        pass  # warmup failure must not prevent startup
 
 
 app = FastAPI(
