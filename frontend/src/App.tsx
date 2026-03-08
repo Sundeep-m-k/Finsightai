@@ -5,12 +5,13 @@ import { Layout } from './components/layout/Layout';
 import { LandingPage } from './pages/LandingPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { UploadPage } from './pages/UploadPage';
+import { ExpenseSummaryPage } from './pages/ExpenseSummaryPage';
 import { GapRevealPage } from './pages/GapRevealPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ChatPage } from './pages/ChatPage';
 
 // Pages that have their own nav with a ThemeToggle — don't float on top of them
-const NAV_HAS_TOGGLE = ['/', '/dashboard', '/dashboard/chat'];
+const NAV_HAS_TOGGLE = ['/', '/dashboard', '/dashboard/chat', '/summary', '/gap'];
 
 function FloatingToggle() {
   const { pathname } = useLocation();
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/onboard" element={<OnboardingPage />} />
         <Route path="/upload" element={<UploadPage />} />
+        <Route path="/summary" element={<ExpenseSummaryPage />} />
         <Route path="/gap" element={<GapRevealPage />} />
         <Route path="/dashboard" element={<Layout />}>
           <Route index element={<DashboardPage />} />

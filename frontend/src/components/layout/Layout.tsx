@@ -9,15 +9,15 @@ export function Layout() {
   const isLight = theme === 'light';
 
   return (
-    <div className={`min-h-screen ${isLight ? 'bg-cream-100' : 'bg-slate-950'}`}>
+    <div className={`min-h-screen ${isLight ? 'bg-cream-100' : 'bg-[#0a0a0a]'}`}>
       <nav className={`border-b px-6 py-3 sticky top-0 z-10 backdrop-blur-sm ${
         isLight
-          ? 'bg-cream-100/90 border-cream-300'
-          : 'bg-slate-950/90 border-slate-800'
+          ? 'bg-cream-100/90 border-stone-200'
+          : 'bg-[#0a0a0a]/90 border-white/8'
       }`}>
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           {/* Logo */}
-          <Link to="/dashboard" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-display font-black text-xs ${
               isLight ? 'bg-stone-900 text-gold-400' : 'bg-white text-stone-900'
             }`}>

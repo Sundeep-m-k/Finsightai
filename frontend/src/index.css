@@ -4,13 +4,18 @@
 
 /* ─── Base font ─────────────────────────────────────────────────────────────── */
 
+/* Dark mode default */
 body {
   font-family: 'DM Sans', system-ui, sans-serif;
-  @apply bg-slate-950 text-slate-100 antialiased;
+  background-color: #0a0a0a;
+  color: #f1f5f9;
+  -webkit-font-smoothing: antialiased;
 }
 
-.dark body {
-  @apply bg-slate-950 text-slate-100;
+/* Light mode — body must match page bg to avoid dark edges around narrow components */
+html:not(.dark) body {
+  background-color: #faf7f2;
+  color: #1a1713;
 }
 
 /* ─── Animations ────────────────────────────────────────────────────────────── */
@@ -32,8 +37,8 @@ body {
   to   { opacity: 1; }
 }
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.4), 0 0 60px rgba(99,102,241,0.1); }
-  50%       { box-shadow: 0 0 50px rgba(99,102,241,0.7), 0 0 100px rgba(99,102,241,0.25); }
+  0%, 100% { box-shadow: 0 0 20px rgba(212,168,73,0.3), 0 0 60px rgba(212,168,73,0.1); }
+  50%       { box-shadow: 0 0 50px rgba(212,168,73,0.5), 0 0 100px rgba(212,168,73,0.2); }
 }
 @keyframes rowReveal {
   from { opacity: 0; transform: translateX(-24px); }
@@ -46,10 +51,6 @@ body {
   from { opacity: 0; transform: scale(0.8); }
   to   { opacity: 1; transform: scale(1); }
 }
-@keyframes toggleSlide {
-  from { transform: translateX(0); }
-  to   { transform: translateX(1.75rem); }
-}
 
 .animate-slide-right { animation: slideInRight 0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
 .animate-slide-left  { animation: slideInLeft  0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -60,73 +61,36 @@ body {
 .animate-bar-fill    { animation: barFill      1.4s  cubic-bezier(0.22,1,0.36,1) forwards; }
 .animate-number-pop  { animation: numberPop    0.4s  cubic-bezier(0.22,1,0.36,1) both; }
 
+/* ─── Celebration modal ─────────────────────────────────────────────────────── */
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.78); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+@keyframes burst {
+  0%   { opacity: 1; transform: translate(0,0) scale(1); }
+  60%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--bx,0px), var(--by,0px)) scale(0.15); }
+}
+@keyframes shrinkW {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+@keyframes floatStar {
+  0%,100% { transform: translateY(0)   rotate(0deg);   opacity: 0.7; }
+  50%      { transform: translateY(-8px) rotate(180deg); opacity: 1;   }
+}
+
+.animate-scale-in { animation: scaleIn  0.5s  cubic-bezier(0.34,1.56,0.64,1) both; }
+.animate-burst    { animation: burst    1.8s  ease-out forwards; }
+.animate-shrink-w { animation: shrinkW  linear forwards; }
+.animate-float-star { animation: floatStar 2s ease-in-out infinite; }
+
 /* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
 
 ::-webkit-scrollbar       { width: 5px; }
-::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
 ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
 
 html:not(.dark) ::-webkit-scrollbar-track { background: #f0ebe3; }
 html:not(.dark) ::-webkit-scrollbar-thumb { background: #c0b5a8; }
-
-/* ─── Light mode overrides for pages not fully rewritten ─────────────────────
-   Covers: OnboardingPage, UploadPage, GapRevealPage
-   Uses higher specificity (html:not(.dark) prefix) to beat Tailwind's
-   generated classes without needing !important on most rules.
-──────────────────────────────────────────────────────────────────────────────── */
-
-/* Backgrounds */
-html:not(.dark) body                    { background-color: #faf7f2; color: #1a1713; }
-html:not(.dark) .bg-slate-950          { background-color: #faf7f2; }
-html:not(.dark) .bg-slate-900          { background-color: #ffffff; }
-html:not(.dark) .bg-slate-800          { background-color: #e8e0d4; }
-
-/* Semi-transparent backgrounds — needs !important to override rgb() alpha */
-html:not(.dark) .bg-slate-900\/80      { background-color: rgba(255,255,255,0.85) !important; }
-html:not(.dark) .bg-slate-900\/60      { background-color: rgba(255,255,255,0.7)  !important; }
-html:not(.dark) .bg-slate-900\/50      { background-color: rgba(255,255,255,0.6)  !important; }
-html:not(.dark) .bg-slate-950\/90      { background-color: rgba(250,247,242,0.92) !important; }
-
-/* Text */
-html:not(.dark) .text-white            { color: #1a1713; }
-html:not(.dark) .text-slate-100        { color: #2a2320; }
-html:not(.dark) .text-slate-200        { color: #3a3330; }
-html:not(.dark) .text-slate-300        { color: #4a4340; }
-html:not(.dark) .text-slate-400        { color: #6b6459; }
-html:not(.dark) .text-slate-500        { color: #7a7368; }
-html:not(.dark) .text-slate-600        { color: #8a8278; }
-html:not(.dark) .text-slate-700        { color: #a09488; }
-
-/* Borders */
-html:not(.dark) .border-slate-800      { border-color: #e2d9cc; }
-html:not(.dark) .border-slate-700      { border-color: #d4c9bc; }
-html:not(.dark) .border-slate-600      { border-color: #c0b5a8; }
-
-/* Inputs — covers OnboardingPage large number inputs */
-html:not(.dark) input                  { color: #1a1713 !important; }
-html:not(.dark) input::placeholder    { color: #c0b5a8 !important; }
-html:not(.dark) input.bg-slate-900,
-html:not(.dark) input[class*="bg-slate-900"] {
-  background-color: #ffffff !important;
-  border-color: #d4c9bc !important;
-}
-
-/* Onboarding option cards */
-html:not(.dark) button.bg-slate-900\/60   { background-color: rgba(255,255,255,0.7) !important; }
-html:not(.dark) button[class*="bg-slate-900"] { background-color: #ffffff !important; }
-
-/* Indigo accent — keep but soften for light mode */
-html:not(.dark) .bg-indigo-500\/15    { background-color: rgba(99,102,241,0.08) !important; }
-html:not(.dark) .bg-indigo-500\/10    { background-color: rgba(99,102,241,0.06) !important; }
-html:not(.dark) .ring-indigo-500      { --tw-ring-color: rgba(99,102,241,0.5); }
-
-/* GapRevealPage fixed background blobs — hide in light mode */
-html:not(.dark) .bg-red-500\/5,
-html:not(.dark) .bg-indigo-500\/5     { display: none; }
-
-/* Min-h-screen pages — set warm bg on the root element too */
-html:not(.dark) .min-h-screen         { background-color: #faf7f2; }
-
-/* Placeholder colour fix */
-html:not(.dark) .placeholder\:text-slate-800::placeholder { color: #c0b5a8; }
-html:not(.dark) .placeholder\:text-slate-600::placeholder { color: #b0a89e; }
