@@ -208,16 +208,27 @@ function PeriodToggle({ period, onChange, isLight }: { period: 'monthly' | 'annu
   );
 }
 
-// ─── Currency selector ────────────────────────────────────────────────────────
+// ─── Quick-pick currencies (top international student origins) ────────────────
 
-function CurrencySelect({ value, onChange, label = '', nullable = false, isLight }: {
-  value: string | null; onChange: (v: string | null) => void;
-  label?: string; nullable?: boolean; isLight: boolean;
+const QUICK_CURRENCIES = [
+  { code: 'INR', flag: '🇮🇳', name: 'Indian Rupee' },
+  { code: 'CNY', flag: '🇨🇳', name: 'Chinese Yuan' },
+  { code: 'KRW', flag: '🇰🇷', name: 'Korean Won' },
+  { code: 'NGN', flag: '🇳🇬', name: 'Nigerian Naira' },
+  { code: 'BRL', flag: '🇧🇷', name: 'Brazilian Real' },
+  { code: 'MXN', flag: '🇲🇽', name: 'Mexican Peso' },
+  { code: 'PKR', flag: '🇵🇰', name: 'Pakistani Rupee' },
+  { code: 'EUR', flag: '🇪🇺', name: 'Euro' },
+];
+
+// ─── More-currencies dropdown ─────────────────────────────────────────────────
+
+function MoreCurrencyDropdown({ value, onChange, isLight }: {
+  value: string | null; onChange: (v: string | null) => void; isLight: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const ref = useRef<HTMLDivElement>(null);
-  const cur = CURRENCIES.find(c => c.code === value);
   const filtered = search
     ? CURRENCIES.filter(c => c.code.toLowerCase().includes(search.toLowerCase()) || c.name.toLowerCase().includes(search.toLowerCase()))
     : CURRENCIES;
@@ -233,18 +244,15 @@ function CurrencySelect({ value, onChange, label = '', nullable = false, isLight
 
   return (
     <div className="relative" ref={ref}>
-      {label && <p className={`text-xs font-semibold uppercase tracking-wider mb-1.5 ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>{label}</p>}
-      <button onClick={() => setOpen(o => !o)} className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-semibold transition-colors ${
-        cv(isLight, 'border-stone-200 bg-white text-stone-900 hover:border-stone-400', 'border-white/10 bg-white/5 text-white hover:border-white/20')
-      }`}>
-        {cur ? (
-          <><span className="text-lg leading-none">{cur.flag}</span><span>{cur.code}</span></>
-        ) : (
-          <span className={cv(isLight, 'text-stone-400', 'text-slate-500')}>+ Add</span>
-        )}
-        <ChevronDown size={13} className={cv(isLight, 'text-stone-400', 'text-slate-600')} />
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+          cv(isLight, 'border-stone-200 bg-stone-50 text-stone-500 hover:border-stone-400 hover:text-stone-700', 'border-white/8 bg-white/3 text-slate-500 hover:border-white/20 hover:text-white')
+        }`}
+      >
+        More
+        <ChevronDown size={13} />
       </button>
-
       {open && (
         <div className={`absolute top-full left-0 mt-1.5 z-50 w-64 rounded-xl border shadow-2xl overflow-hidden ${
           cv(isLight, 'bg-white border-stone-200', 'bg-[#141414] border-white/10')
@@ -262,12 +270,6 @@ function CurrencySelect({ value, onChange, label = '', nullable = false, isLight
             />
           </div>
           <div className="max-h-56 overflow-y-auto py-1">
-            {nullable && (
-              <button onClick={() => { onChange(null); setOpen(false); setSearch(''); }}
-                className={`w-full text-left px-3 py-2 text-sm ${cv(isLight, 'text-stone-400 hover:bg-stone-50', 'text-slate-600 hover:bg-white/5')}`}>
-                — None
-              </button>
-            )}
             {filtered.map(c => (
               <button key={c.code} onClick={() => { onChange(c.code); setOpen(false); setSearch(''); }}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
@@ -486,55 +488,99 @@ export function ExpenseSummaryPage() {
         </div>
 
         {/* ── International currency card ───────────────────────────────────── */}
-        <div className={`rounded-2xl border p-4 mb-8 animate-fade-up ${
+        <div className={`rounded-2xl border mb-8 overflow-hidden animate-fade-up ${
           cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')
         }`} style={{ animationDelay: '0.10s' }}>
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Label */}
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                cv(isLight, 'bg-gold-400/15', 'bg-gold-500/10')
-              }`}>
+
+          {/* Header row */}
+          <div className={`flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b ${
+            cv(isLight, 'border-stone-100', 'border-white/5')
+          }`}>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(212,168,73,0.12)' }}>
                 <Globe2 size={15} className="text-gold-500" />
               </div>
               <div>
-                <p className={`text-sm font-semibold ${cv(isLight, 'text-stone-900', 'text-white')}`}>
+                <p className={`text-sm font-bold ${cv(isLight, 'text-stone-900', 'text-white')}`}>
                   International student?
                 </p>
                 <p className={`text-xs ${cv(isLight, 'text-stone-400', 'text-slate-500')}`}>
-                  See every amount in your home currency too
+                  Pick your home currency — we'll show every amount side by side
                 </p>
               </div>
             </div>
 
-            {/* Selector + rate */}
-            <div className="flex items-center gap-3 ml-auto flex-wrap">
-              <CurrencySelect
-                label=""
-                value={homeCurrency}
-                onChange={handleSetHome}
-                nullable
-                isLight={isLight}
-              />
-              {homeCurrency && (
-                <div className={`text-xs px-3 py-2 rounded-xl border flex items-center gap-1.5 ${
-                  rate
-                    ? cv(isLight, 'border-emerald-200 bg-emerald-50 text-emerald-700', 'border-emerald-500/20 bg-emerald-500/8 text-emerald-400')
-                    : cv(isLight, 'border-stone-200 text-stone-400', 'border-white/8 text-slate-600')
-                }`}>
-                  {rateLoading ? (
-                    <><RefreshCw size={11} className="animate-spin" /><span>Fetching…</span></>
-                  ) : rate ? (
-                    <>
-                      <span className="font-semibold">
-                        1 USD = {rate >= 1000 ? Math.round(rate).toLocaleString() : rate >= 10 ? rate.toFixed(1) : rate.toFixed(3)} {homeCurrency}
-                      </span>
-                      <span className="opacity-50">· {timeAgo(updatedAt)}</span>
-                    </>
-                  ) : (
-                    <span>Rate unavailable</span>
-                  )}
+            {/* Live rate badge */}
+            {homeCurrency && (
+              <div className={`text-xs px-3 py-1.5 rounded-full border font-semibold flex items-center gap-1.5 ${
+                rate
+                  ? cv(isLight, 'border-emerald-200 bg-emerald-50 text-emerald-700', 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400')
+                  : cv(isLight, 'border-stone-200 text-stone-400', 'border-white/8 text-slate-600')
+              }`}>
+                {rateLoading ? (
+                  <><RefreshCw size={10} className="animate-spin" /><span>Fetching…</span></>
+                ) : rate ? (
+                  <span>
+                    1 USD = {rate >= 1000 ? Math.round(rate).toLocaleString() : rate >= 10 ? rate.toFixed(1) : rate.toFixed(3)} {homeCurrency}
+                    <span className="opacity-50 ml-1">· {timeAgo(updatedAt)}</span>
+                  </span>
+                ) : <span>Rate unavailable</span>}
+              </div>
+            )}
+          </div>
+
+          {/* Flag quick-picks */}
+          <div className="px-5 py-4">
+            <p className={`text-xs font-semibold uppercase tracking-wider mb-3 ${cv(isLight, 'text-stone-400', 'text-slate-600')}`}>
+              Select your home country
+            </p>
+            <div className="flex flex-wrap gap-2 items-center">
+              {QUICK_CURRENCIES.map(qc => {
+                const selected = homeCurrency === qc.code;
+                return (
+                  <button
+                    key={qc.code}
+                    onClick={() => handleSetHome(selected ? null : qc.code)}
+                    title={qc.name}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-semibold transition-all ${
+                      selected
+                        ? 'border-gold-500 text-stone-900 shadow-sm'
+                        : cv(isLight,
+                            'border-stone-200 bg-stone-50 text-stone-700 hover:border-stone-400 hover:bg-white',
+                            'border-white/8 bg-white/4 text-slate-300 hover:border-white/25 hover:text-white',
+                          )
+                    }`}
+                    style={selected ? { background: 'rgba(212,168,73,0.18)', borderColor: '#d4a849', color: cv(isLight, '#1c1917', '#ffffff') } : {}}
+                  >
+                    <span className="text-xl leading-none">{qc.flag}</span>
+                    <span>{qc.code}</span>
+                  </button>
+                );
+              })}
+
+              {/* If a non-quick currency is selected, show it too */}
+              {homeCurrency && !QUICK_CURRENCIES.find(q => q.code === homeCurrency) && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-semibold shadow-sm"
+                  style={{ background: 'rgba(212,168,73,0.18)', borderColor: '#d4a849', color: cv(isLight, '#1c1917', '#ffffff') }}>
+                  <span className="text-xl leading-none">
+                    {CURRENCIES.find(c => c.code === homeCurrency)?.flag ?? '🌐'}
+                  </span>
+                  <span>{homeCurrency}</span>
                 </div>
+              )}
+
+              <MoreCurrencyDropdown value={homeCurrency} onChange={handleSetHome} isLight={isLight} />
+
+              {/* Clear */}
+              {homeCurrency && (
+                <button
+                  onClick={() => handleSetHome(null)}
+                  className={`text-xs px-3 py-2 rounded-xl border transition-colors ${
+                    cv(isLight, 'border-stone-200 text-stone-400 hover:text-red-500 hover:border-red-200', 'border-white/8 text-slate-600 hover:text-red-400 hover:border-red-500/30')
+                  }`}
+                >
+                  Clear ✕
+                </button>
               )}
             </div>
           </div>

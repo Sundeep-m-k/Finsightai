@@ -138,7 +138,7 @@ export function DashboardPage() {
     <div className="space-y-8">
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 animate-fade-up">
         <div>
           <h1 className={`font-display font-black text-3xl leading-tight ${c(isLight, 'text-stone-900', 'text-white')}`}>
             Your Financial Plan
@@ -162,7 +162,7 @@ export function DashboardPage() {
       </div>
 
       {/* ── Readiness scores ───────────────────────────────────────────────── */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 animate-fade-up" style={{ animationDelay: '0.08s' }}>
         <ScoreCard
           label="Saving Readiness"
           icon={PiggyBank}
@@ -183,9 +183,9 @@ export function DashboardPage() {
 
       {/* ── AI Narrative ───────────────────────────────────────────────────── */}
       {data.narrative && (
-        <div className={`rounded-2xl border p-5 ${
+        <div className={`rounded-2xl border p-5 animate-fade-up ${
           c(isLight, 'border-stone-200 bg-stone-50', 'border-white/8 bg-white/[0.03]')
-        }`}>
+        }`} style={{ animationDelay: '0.14s' }}>
           <p className={`text-base font-display font-semibold italic leading-relaxed ${
             c(isLight, 'text-stone-700', 'text-slate-300')
           }`}>
@@ -195,7 +195,7 @@ export function DashboardPage() {
       )}
 
       {/* ── Insights ───────────────────────────────────────────────────────── */}
-      <div>
+      <div className="animate-fade-up" style={{ animationDelay: '0.20s' }}>
         <SectionHeading text="Personalised Insights" isLight={isLight} />
         <div className="space-y-3">
           {data.insights.map((insight, i) => (

@@ -128,8 +128,8 @@ function GapRow({ row, visible, index, isLight }: { row: GapRowData; visible: bo
 
   return (
     <div
-      className={`transition-all duration-500 ${visible ? 'animate-row-reveal opacity-100' : 'opacity-0'}`}
-      style={{ animationDelay: `${index * 0.4}s`, animationFillMode: 'both' }}
+      className={visible ? 'animate-fade-up' : 'invisible'}
+      style={{ animationDelay: `${index * 0.35}s`, animationFillMode: 'both' }}
     >
       <div className={`rounded-2xl border p-5 ${cv(isLight, 'bg-white border-stone-200', 'bg-white/[0.03] border-white/8')}`}>
         {/* Header */}
@@ -200,18 +200,14 @@ export function GapRevealPage() {
   const isRealData = derived !== null;
 
   const [visibleCount, setVisibleCount] = useState(0);
-  const [showSummary, setShowSummary]   = useState(false);
-  const [headingVisible, setHeadingVisible] = useState(false);
 
-  const totalRate  = useCountUp(SUMMARY.actualRate * 10,  800, 400, headingVisible);
-  const statedRate = useCountUp(SUMMARY.statedRate * 10,  800, 600, headingVisible);
+  const totalRate  = useCountUp(SUMMARY.actualRate * 10, 800, 400, true);
+  const statedRate = useCountUp(SUMMARY.statedRate * 10, 800, 600, true);
 
   useEffect(() => {
-    setTimeout(() => setHeadingVisible(true), 200);
     GAP_DATA.forEach((_, i) => {
-      setTimeout(() => setVisibleCount(i + 1), i * 400 + 800);
+      setTimeout(() => setVisibleCount(i + 1), i * 350 + 500);
     });
-    setTimeout(() => setShowSummary(true), GAP_DATA.length * 400 + 1200);
   }, [GAP_DATA.length]);
 
   return (
@@ -241,7 +237,7 @@ export function GapRevealPage() {
       <div className="max-w-5xl mx-auto w-full px-6 xl:px-8 py-10">
 
         {/* ── Heading ──────────────────────────────────────────────────────── */}
-        <div className={`mb-8 transition-all duration-700 ${headingVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+        <div className="mb-8 animate-fade-up">
           <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold mb-5 ${
             cv(isLight, 'bg-red-50 border-red-200 text-red-500', 'bg-red-500/10 border-red-500/20 text-red-400')
           }`}>
@@ -306,8 +302,8 @@ export function GapRevealPage() {
             ))}
           </div>
 
-          {/* Summary + CTA (sticky on desktop) */}
-          <div className={`transition-all duration-700 ${showSummary ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          {/* Summary + CTA */}
+          <div className="animate-fade-up" style={{ animationDelay: '0.3s' }}>
             <h2 className={`font-display font-black text-xl mb-4 ${cv(isLight, 'text-stone-900', 'text-white')}`}>
               What this means
             </h2>

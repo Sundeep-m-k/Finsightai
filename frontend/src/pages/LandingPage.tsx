@@ -183,6 +183,93 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* ── Manifesto ─────────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-stone-950 px-8 py-28">
+
+        {/* Ambient gold glow */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full opacity-[0.07]"
+            style={{ background: 'radial-gradient(circle, #d4a849 0%, transparent 70%)' }}
+          />
+        </div>
+
+        <div className="relative max-w-4xl mx-auto">
+
+          {/* Eyebrow */}
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-400/60 mb-10 text-center">
+            What we actually are
+          </p>
+
+          {/* Main quote */}
+          <h2
+            className="font-display font-black text-white leading-[1.05] tracking-tight mb-8 text-center"
+            style={{ fontSize: 'clamp(2rem, 5vw, 4rem)' }}
+          >
+            Not your bank.<br />
+            Not your dad.<br />
+            <span className="text-gold-400">Your financial mirror.</span>
+          </h2>
+
+          {/* Emotional paragraph */}
+          <p
+            className="text-slate-400 leading-relaxed max-w-2xl mx-auto text-center mb-4"
+            style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)' }}
+          >
+            Whether you're a student on a stipend, a first-generation earner
+            figuring it out alone, or a professional who just never learned the rules —
+            money stress looks the same. We built this for all of you.
+          </p>
+
+          {/* International student callout */}
+          <p
+            className="font-display font-semibold italic text-gold-400/70 text-center mb-16"
+            style={{ fontSize: 'clamp(1.1rem, 2vw, 1.35rem)' }}
+          >
+            Especially for international students navigating a financial system
+            that was never explained to them.
+          </p>
+
+          {/* Three pillars — bold text only, no emojis */}
+          <div className="grid sm:grid-cols-3 gap-px bg-white/[0.06] rounded-2xl overflow-hidden border border-white/[0.06]">
+            {[
+              {
+                title: 'Your wallet, decoded.',
+                desc: 'Months of real transactions turned into a clear picture of your financial life — not a snapshot, a story.',
+              },
+              {
+                title: 'Numbers + the story behind them.',
+                desc: 'Spending is habit, stress, and context. We factor in your behaviour, not just what your bank says.',
+              },
+              {
+                title: 'Zero guesswork. Always cited.',
+                desc: 'Every insight links back to CFPB, OpenStax, or investor.gov. We never make things up.',
+              },
+            ].map((pillar, i) => (
+              <div
+                key={pillar.title}
+                className="bg-stone-950 px-8 py-8 hover:bg-white/[0.04] transition-colors"
+              >
+                <span className="font-display font-black text-gold-400/40 text-5xl leading-none block mb-5">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 className="font-display font-black text-white text-xl leading-snug mb-3">
+                  {pillar.title}
+                </h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  {pillar.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom companion line */}
+          <p className="text-center text-slate-600 text-sm mt-10 tracking-wide">
+            Honest advice · Grounded in data · Never in guesswork
+          </p>
+        </div>
+      </section>
+
       {/* ── Divider ───────────────────────────────────────────────────────────── */}
       <div className={`mx-8 h-px ${isLight ? 'bg-cream-300' : 'bg-white/5'}`} />
 
@@ -261,10 +348,10 @@ export function LandingPage() {
 
               {/* Advisor */}
               <div className={`pt-4 border-t ${isLight ? 'border-cream-300' : 'border-white/8'}`}>
-                <p className={`text-sm font-medium mb-1 ${isLight ? 'text-stone-400' : 'text-slate-600'}`}>
+                <p className={`text-xs font-semibold uppercase tracking-wider mb-1.5 ${isLight ? 'text-stone-400' : 'text-slate-600'}`}>
                   Advised by
                 </p>
-                <p className={`text-base font-semibold ${isLight ? 'text-gold-600' : 'text-gold-400'}`}>
+                <p className={`text-xl font-display font-black leading-snug ${isLight ? 'text-gold-600' : 'text-gold-400'}`}>
                   {member.advisor}
                 </p>
               </div>
@@ -273,11 +360,11 @@ export function LandingPage() {
         </div>
 
         {/* Thank-you note */}
-        <p className={`text-base text-center leading-relaxed max-w-2xl mx-auto italic ${
-          isLight ? 'text-stone-500' : 'text-slate-500'
+        <p className={`text-xl sm:text-2xl text-center leading-relaxed max-w-2xl mx-auto font-display font-semibold italic ${
+          isLight ? 'text-stone-500' : 'text-slate-400'
         }`}>
-          "We thank our advisors for their mentorship and for providing API access
-          that made this project possible."
+          "We are grateful to our advisors for their mentorship, guidance, and constant
+          encouragement throughout our journey."
         </p>
       </section>
 
