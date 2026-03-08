@@ -320,10 +320,8 @@ export function LandingPage() {
                   {f.num}
                 </span>
 
-                {/* Content + gold left border accent */}
-                <div className={`border-l-2 pl-8 flex flex-col justify-center ${
-                  isLight ? 'border-gold-500/40' : 'border-gold-500/30'
-                }`}>
+                {/* Content */}
+                <div className="flex flex-col justify-center">
                   <h3
                     className={`font-display font-black leading-snug mb-3 ${
                       isLight ? 'text-stone-900' : 'text-white'
