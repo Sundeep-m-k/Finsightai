@@ -309,36 +309,23 @@ export function LandingPage() {
           {/* Steps */}
           <div className="space-y-12">
             {features.map((f) => (
-              <div key={f.num} className="flex gap-8 items-stretch group">
-                {/* Big number */}
-                <span
-                  className={`font-display font-black leading-none shrink-0 select-none ${
-                    isLight ? 'text-stone-200' : 'text-white/8'
+              <div key={f.num} className="flex flex-col group">
+                <h3
+                  className={`font-display font-black leading-snug mb-3 ${
+                    isLight ? 'text-stone-900' : 'text-white'
                   }`}
-                  style={{ fontSize: 'clamp(4rem, 8vw, 7rem)', width: '6rem' }}
+                  style={{ fontSize: 'clamp(1.35rem, 2.8vw, 2rem)' }}
                 >
-                  {f.num}
-                </span>
-
-                {/* Content */}
-                <div className="flex flex-col justify-center">
-                  <h3
-                    className={`font-display font-black leading-snug mb-3 ${
-                      isLight ? 'text-stone-900' : 'text-white'
-                    }`}
-                    style={{ fontSize: 'clamp(1.35rem, 2.8vw, 2rem)' }}
-                  >
-                    {f.title}
-                  </h3>
-                  <p
-                    className={`leading-relaxed ${
-                      isLight ? 'text-stone-500' : 'text-slate-400'
-                    }`}
-                    style={{ fontSize: 'clamp(0.95rem, 1.6vw, 1.1rem)' }}
-                  >
-                    {f.desc}
-                  </p>
-                </div>
+                  {f.title}
+                </h3>
+                <p
+                  className={`leading-relaxed ${
+                    isLight ? 'text-stone-500' : 'text-slate-400'
+                  }`}
+                  style={{ fontSize: 'clamp(0.95rem, 1.6vw, 1.1rem)' }}
+                >
+                  {f.desc}
+                </p>
               </div>
             ))}
           </div>

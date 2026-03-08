@@ -7,6 +7,7 @@ import type { InsightResponse } from 'shared/schemas/insight';
 import { CitationPills } from '../components/chat/CitationPills';
 import { Loader } from '../components/common/Loader';
 import { ErrorBanner } from '../components/common/ErrorBanner';
+import { LiveWatchlist } from '../components/dashboard/LiveWatchlist';
 import { MessageCircle, TrendingUp, PiggyBank } from 'lucide-react';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -271,6 +272,11 @@ export function DashboardPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* ── Market Watchlist ───────────────────────────────────────────────── */}
+      <div className="animate-fade-up" style={{ animationDelay: '0.34s' }}>
+        <LiveWatchlist />
       </div>
 
       {/* ── Disclaimer ─────────────────────────────────────────────────────── */}
