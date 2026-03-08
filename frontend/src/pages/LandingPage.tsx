@@ -120,7 +120,7 @@ export function LandingPage() {
                 : 'bg-white text-stone-900 hover:bg-cream-100 shadow-lg shadow-white/10'
             }`}
           >
-            Show me my numbers
+            Start my financial checkup
             <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
           </Link>
           <button

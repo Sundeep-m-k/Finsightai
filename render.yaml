@@ -1,9 +1,9 @@
-# Render blueprint (optional). Use Dashboard to create services if you prefer.
-# https://render.com/docs/blueprint-spec
+# Render blueprint — https://render.com/docs/blueprint-spec
+# Deploy order: backend first, then ai-service, then set Vercel env vars.
 
 services:
   - type: web
-    name: finsight-backend
+    name: finscope-backend
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
@@ -11,14 +11,13 @@ services:
     envVars: []
 
   - type: web
-    name: finsight-ai-service
+    name: finscope-ai-service
     runtime: python
     rootDir: ai-service
     buildCommand: pip install -r requirements.txt && python -m app.rag.ingest
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: GEMINI_API_KEY
+      - key: BINGHAMTON_API_KEY
         sync: false
       - key: FINNHUB_API_KEY
         sync: false
-        optional: true
